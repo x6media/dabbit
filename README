@@ -13,6 +13,8 @@ Each Client UI
                          | These can share an interface
     Windows Modern App  /
     Windows Phone 8 App
+    Linux (GTK + Terminal to replace irssi) 
+    Mac OSX
     Android App
     iOS App (Tablet and phone will share similiar interfaces)
     Web HTML App

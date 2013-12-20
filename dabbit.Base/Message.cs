@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using System.Threading;
 
 namespace dabbit.Base
 {
@@ -13,29 +13,30 @@ namespace dabbit.Base
         public string Command { get; internal set; }
         public string RawLine { get; internal set; }
 
-        public From From { get; internal set; }
+        public SourceEntity From { get; internal set; }
         public DateTime Timestamp { get; internal set; }
 
     }
-    public class From
+    public class SourceEntity
     {
-        public FromType Type { get { return this.fromType; } }
+        public SourceEntityType Type { get { return this.fromType; } }
         public string[] Parts { get { return this.parts; } }
 
-        public From(string[] parts, FromType from)
+        public SourceEntity(string[] parts, SourceEntityType sourceType)
         {
-            this.fromType = from;
+            this.fromType = sourceType;
             this.parts = parts;
         }
 
-        private FromType fromType;
+        private SourceEntityType fromType;
         private string[] parts;
     }
-    public enum FromType
+    public enum SourceEntityType
     {
         Server,
         Client,
         BNC,
-        Dabbit
+        Dabbit,
+        Channel
     }
 }

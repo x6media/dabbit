@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using System.Threading;
 using System.IO;
 
 namespace dabbit.Base
@@ -182,11 +182,11 @@ namespace dabbit.Base
             if (fromParts.Count() > 1)
             {
                 string[] identHost = fromParts[1].Split('@');
-                msg.From = new From(new string[] { fromParts[0].Substring(1), identHost[0], identHost[1] }, FromType.Client);
+                msg.From = new SourceEntity(new string[] { fromParts[0].Substring(1), identHost[0], identHost[1] }, SourceEntityType.Client);
             }
             else
             {
-                msg.From = new From(new string[] { fromParts[0].Substring(1) }, FromType.Server);
+                msg.From = new SourceEntity(new string[] { fromParts[0].Substring(1) }, SourceEntityType.Server);
             }
 
             return msg;
@@ -195,7 +195,7 @@ namespace dabbit.Base
 
         public void Write(string message)
         {
-            this.socketWrapper.Writer.WriteLineAsync(message);
+            this.socketWrapper.Writer.WriteLine(message);
         }
 
         private Stack<Message> messages = new Stack<Message>();
