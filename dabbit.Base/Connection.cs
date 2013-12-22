@@ -125,7 +125,7 @@ namespace dabbit.Base
         /// doing a background reader and checker. If you set the RawMessageReceived delegate,
         /// you can get a callback for every time a raw message is received.
         /// </summary>
-        private void ReadAsync()
+        public void ReadAsync()
         {
             this.Async = true;
 
@@ -134,6 +134,12 @@ namespace dabbit.Base
             {
                 while (this.Connected && this.RawMessageReceived == null)
                 {
+                    Message msg = this.ReadDirect();
+                    if (msg == null)
+                    {
+                        this.Disconnect();
+                        return;
+                    }
                     this.messages.Push(this.ReadDirect());
                 }
             }
@@ -163,8 +169,15 @@ namespace dabbit.Base
             Message msg = new Message();
 
             msg.RawLine = this.socketWrapper.Reader.ReadLine();
+
+            if (msg.RawLine == null)
+            {
+                return null;
+            }
+              
             string[] messages = msg.RawLine.Split(' ');
 
+            msg.Parts = messages;
 
             if (messages[0] == "PING" || messages[0] == "ERROR")
             {
@@ -174,11 +187,30 @@ namespace dabbit.Base
             {
                 msg.Command = messages[1];
             }
-            
-            
-            msg.MessageLine = String.Join(" ", messages.Where(p => p[0] == ':' && p != messages[0]).ToArray()).Substring(1);
-            
+
+            string temp = "";
+            bool found = false;
+            for (int i = 1; i < messages.Count(); i++)
+            {
+                if (messages[i][0] == ':')
+                {
+                    found = true;
+                }
+
+                if (found)
+                    temp += messages[i] + " ";
+
+            }
+
+            temp = temp.TrimEnd();
+
+            if (temp != "")
+                msg.MessageLine = temp.Substring(1);
+            else
+                msg.MessageLine = msg.RawLine.Substring(1);
+
             string[] fromParts = messages[0].Split('!');
+
             if (fromParts.Count() > 1)
             {
                 string[] identHost = fromParts[1].Split('@');
@@ -195,7 +227,9 @@ namespace dabbit.Base
 
         public void Write(string message)
         {
+            
             this.socketWrapper.Writer.WriteLine(message);
+            this.socketWrapper.Writer.Flush();
         }
 
         private Stack<Message> messages = new Stack<Message>();

@@ -8,9 +8,9 @@ namespace dabbit.Base
 {
     public delegate void IrcEventHandler(object sender, Message e);
     public delegate void PrivmsgEventHandler(object sender, PrivmsgMessage e);
-    public delegate void NoticeEventHandler(object sender, NoticeMessage e);
+    public delegate void NoticeEventHandler(object sender, PrivmsgMessage e);
+    public delegate void ActionEventHandler(object sender, PrivmsgMessage e);
     public delegate void CtcpEventHandler(object sender, Message e);
-    public delegate void ActionEventHandler(object sender, Message e);
     public delegate void ErrorEventHandler(object sender, Message e);
     public delegate void PingEventHandler(object sender, Message e);
     public delegate void KickEventHandler(object sender, Message e);

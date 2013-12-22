@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dabbit.WinApp", "dabbit.Win
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dabbit.Win", "dabbit.Win\dabbit.Win.csproj", "{6D7127E5-156A-45D0-9732-914DCBF45CC5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dabbit.UnitTests", "dabbit.UnitTests\dabbit.UnitTests.csproj", "{D8F79ACF-40E4-426E-9676-18F144D8FF77}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -63,6 +65,16 @@ Global
 		{6D7127E5-156A-45D0-9732-914DCBF45CC5}.Release|ARM.ActiveCfg = Release|Any CPU
 		{6D7127E5-156A-45D0-9732-914DCBF45CC5}.Release|x64.ActiveCfg = Release|Any CPU
 		{6D7127E5-156A-45D0-9732-914DCBF45CC5}.Release|x86.ActiveCfg = Release|Any CPU
+		{D8F79ACF-40E4-426E-9676-18F144D8FF77}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D8F79ACF-40E4-426E-9676-18F144D8FF77}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D8F79ACF-40E4-426E-9676-18F144D8FF77}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{D8F79ACF-40E4-426E-9676-18F144D8FF77}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{D8F79ACF-40E4-426E-9676-18F144D8FF77}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{D8F79ACF-40E4-426E-9676-18F144D8FF77}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D8F79ACF-40E4-426E-9676-18F144D8FF77}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D8F79ACF-40E4-426E-9676-18F144D8FF77}.Release|ARM.ActiveCfg = Release|Any CPU
+		{D8F79ACF-40E4-426E-9676-18F144D8FF77}.Release|x64.ActiveCfg = Release|Any CPU
+		{D8F79ACF-40E4-426E-9676-18F144D8FF77}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
