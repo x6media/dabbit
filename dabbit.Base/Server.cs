@@ -28,12 +28,13 @@ namespace dabbit.Base
         public ServerType Type { get { return this.serverType; } }
         public User Me { get { return this.me; } }
         public Dictionary<string, string> Attributes { get { return this.attributes; } }
-        public List<Channel> Channels { get; protected set; }
+        public Dictionary<string, Channel> Channels { get; protected set; }
         public Connection Connection { get { return this.connection; } }
-        public string Display { get { return this.Attributes["Network"]; } }
+        public string Display { get { return this.Attributes["NETWORK"]; } }
         public string Password { get; set; }
 
         public bool MultiModes { get { return this.multiModes; } }
+        public bool HostInNames { get { return this.hostInNames; } }
         
         public Server(IContext ctx, User me, Connection connection)
         {
@@ -45,10 +46,16 @@ namespace dabbit.Base
             this.me = me;
 
             this.ctx = ctx;
-
+            this.Channels = new Dictionary<string, Channel>();
+            
             this.connection = connection;
-            this.connection.RawMessageReceived = this.RawMessageReceived;
-            this.Attributes.Add("Network", this.connection.Host);
+            this.connection.RawMessageReceived = this.rawMessageReceived;
+
+            // Add prefined and used attributes
+            this.Attributes.Add("NETWORK", this.connection.Host);
+            this.Attributes.Add("STATUSMSG", "");
+            this.Attributes.Add("CHANTYPES", "");
+
             this.connection.Connect();
 
             this.connection.Write("CAP LS"); // Get list of extras (For multi prefix)
@@ -67,11 +74,10 @@ namespace dabbit.Base
 
 #region Events
 
-        public event PingEventHandler OnPing;
-        public event PongEventHandler OnPong;
         public event IrcEventHandler OnRawMessage;
         public event ErrorEventHandler OnError;
-        public event IrcEventHandler OnErrorMessage;
+        public event JoinEventHandler OnNewChannelJoin;
+        public event PartEventHandler OnCloseChannelPart;
         public event JoinEventHandler OnJoin;
         public event NamesEventHandler OnNames;
         public event ListEventHandler OnList;
@@ -83,19 +89,7 @@ namespace dabbit.Base
         public event InviteEventHandler OnInvite;
         public event BanEventHandler OnBan;
         public event UnbanEventHandler OnUnban;
-        /*public event OpEventHandler OnOp;
-        public event DeopEventHandler OnDeop;
-        public event AdminEventHandler OnAdmin;
-        public event DeadminEventHandler OnDeadmin;
-        public event IrcopEventHandler OnIrcop;
-        public event DeircopEventHandler OnDeircop;
-        public event HalfopEventHandler OnHalfop;
-        public event DehalfopEventHandler OnDehalfop;
-        public event OwnerEventHandler OnOwner;
-        public event DeownerEventHandler OnDeowner;
-        public event VoiceEventHandler OnVoice;
-        public event DevoiceEventHandler OnDevoice;
-         */
+
         public event WhoEventHandler OnWho;
         public event MotdEventHandler OnMotd;
         public event TopicEventHandler OnTopic;
@@ -120,7 +114,7 @@ namespace dabbit.Base
 
 #endregion
 
-        private void RawMessageReceived(Message msg)
+        private void rawMessageReceived(Message msg)
         {
             if (msg == null)
             {
@@ -132,6 +126,7 @@ namespace dabbit.Base
 
             switch (msg.Command)
             {
+                #region PRIVMSG
                 case "PRIVMSG":
                     PrivmsgMessage pvm = new PrivmsgMessage(msg);
 
@@ -197,6 +192,8 @@ namespace dabbit.Base
                     }
 
                     break;
+                #endregion
+                #region NOTICE
                 case "NOTICE":
                     pvm = new PrivmsgMessage(msg);
 
@@ -262,10 +259,210 @@ namespace dabbit.Base
                     }
 
                     break;
+                #endregion
                 case "PING":
                     this.connection.Write("PONG " + msg.Parts[1]);
                     break;
+                case "ERROR":
+                    this.OnError(this, msg);
+                    break;
+                case "JOIN":
+                    JoinMessage jm = new JoinMessage(msg);
+                    if (msg.From.Parts[0] == this.Me.Nick)
+                    {
+                        Channel value;
+                        this.Channels.TryGetValue(msg.Parts[2], out value);
 
+                        if (value == null)
+                        {
+                            value = new Channel();
+                            value.Modes = new List<Mode>();
+                            value.Users = new List<User>();
+                            value.Topic = new Topic();
+
+                            this.Channels.Add(msg.Parts[2], value);
+                        }
+                        value.Name = msg.Parts[2];
+                        value.Display = value.Name;
+
+                        this.connection.Write("MODE " + jm.Channel);
+
+                        this.Channels[msg.Parts[2]] = value;
+
+                        if (value.ChannelLoaded && this.OnNewChannelJoin != null)
+                        {
+                            this.OnNewChannelJoin(this, jm);
+                        }
+                    }
+                    else
+                    {
+                        User usr = new User();
+                        usr.Nick = jm.From.Parts[0];
+                        usr.Ident = jm.From.Parts[1];
+                        usr.Host = jm.From.Parts[2];
+                        usr.Modes = new List<string>();
+
+                        this.Channels[jm.Channel].Users.Add(usr);
+
+
+                        this.Channels[jm.Channel].Users.Sort(sortuser);
+                        if (this.OnJoin != null)
+                        {
+                            this.OnJoin(this, jm);
+                        }
+                        
+                    }
+                    break;
+                case "324": // :hyperion.gamergalaxy.net 324 dabbbb #dab +r
+                    Channel chnl;
+                    this.Channels.TryGetValue(msg.Parts[3], out chnl);
+
+                    if (chnl == null)
+                    {
+                        // do nothing because we aren't a member of this channel
+                        return;
+                    }
+
+                    //chnl.Modes = new List<Mode>();
+
+                    string modes = msg.Parts[4];
+                    int paramidx = 5;
+
+                    for (int i = 0; i < modes.Length; i++)
+                    {
+                        Mode mode = new Mode();
+
+                        // Is this a mode with a parameter?
+                        if (this.Attributes["CHANMODES_B"].Contains(modes[i].ToString()))
+                        {
+                            mode.Argument = msg.Parts[paramidx++];
+                        }
+                        else
+                        {
+                            mode.Argument = String.Empty;
+                        }
+
+                        mode.Character = modes[i];
+                        mode.Type = ModeType.Channel;
+
+                    }
+
+
+                    break;
+                case "353": // /Names list item :hyperion.gamergalaxy.net 353 badddd = #dab :badddd BB-Aso
+                    //msg.Parts[4] = msg.Parts[4].Substring(1);
+                    
+                    Channel vall;
+                    this.Channels.TryGetValue(msg.Parts[4], out vall);
+
+                    // Should NEVER HAPPEN
+                    if (vall == null)
+                    {
+                        // We don't want to execute this
+                        return;
+                    }
+
+                    if (vall.Users == null)
+                    {
+                        vall.Users = new List<User>();
+                    }
+
+                    msg.Parts[5] = msg.Parts[5].Substring(1);
+                    string prefixes = this.Attributes["PREFIX_PREFIXES"];
+
+                    for (int i = 5; i < msg.Parts.Count(); i++)
+                    {
+                        User tempuser = new User();
+                        tempuser.Modes = new List<string>();
+
+                        if (this.HostInNames)
+                        {
+                            string[] nick = msg.Parts[i].Split('!');
+                            string[] identhost = nick[1].Split('@');
+                            tempuser.Nick = nick[0];
+                            tempuser.Ident = identhost[0];
+                            tempuser.Host = identhost[1];
+                        }
+                        else
+                        {
+                            tempuser.Nick = msg.Parts[i];
+                        }
+                        
+                        while (prefixes.Contains(tempuser.Nick[0].ToString()))
+                        {
+                            tempuser.Modes.Add(tempuser.Nick[0].ToString());
+                            tempuser.Nick = tempuser.Nick.Substring(1);
+
+                            tempuser.Modes.Sort(delegate(string s1, string s2)
+                            {
+                                return prefixes.IndexOf(s1[0]).CompareTo(prefixes.IndexOf(s2[0]));
+                            });
+                        }
+                        
+
+                        //JoinMessage xinmsg = new JoinMessage(msg);
+                        //joinmsg.Channel = msg.Parts[3];
+
+
+                        vall.Users.Add(tempuser);
+
+                        vall.Users.Sort(sortuser);
+                    }
+
+
+                    this.Channels[msg.Parts[5]] = vall;
+
+                    break;
+                case "366": // End of /names list
+
+                    JoinMessage jm_ = new JoinMessage(msg);
+                    jm_.Channel = msg.Parts[3];
+
+                    if (this.Channels[jm_.Channel].ChannelLoaded && this.OnNewChannelJoin != null)
+                    {
+                        this.OnNewChannelJoin(this, jm_);
+                    }
+                    break;
+                case "332":
+                    Channel tmpchan;
+
+                    this.Channels.TryGetValue(msg.Parts[3], out tmpchan);
+
+                    if (tmpchan == null)
+                    {
+                        // We don't want to execute in case the user called this command outside of a channel
+                        return;
+                    }
+
+                    tmpchan.Topic = new Topic();
+                    tmpchan.Topic.Display = msg.MessageLine;
+
+                    this.Channels[msg.Parts[3]] = tmpchan;
+                    break;
+                case "333": // Who set the topic and when they set it
+                    
+                    Channel tmpchan2;
+
+                    this.Channels.TryGetValue(msg.Parts[3], out tmpchan2);
+
+                    if (tmpchan2 == null)
+                    {
+                        // If a user calls topic by themselves we don't want to execute this
+                        return;
+                    }
+
+                    tmpchan2.Topic.SetBy = msg.Parts[4];
+                    // Set a dateTime to the beginning of unix epoch
+                    DateTime dateTime = new System.DateTime(1970, 1, 1, 0, 0, 0, 0);
+                    // Add the # of seconds (the date of which we set the channel topic)
+                    dateTime = dateTime.AddSeconds(Int32.Parse(msg.Parts[5]));
+
+                    tmpchan2.Topic.DateSet = dateTime;
+
+                    this.Channels[msg.Parts[3]] = tmpchan2;
+                    break;
+                case "372": // MOTD 376 eomtd
+                    break;
                 case "004": // Get Server Type
                     Array values = Enum.GetValues(typeof(ServerType));
                     this.me.Nick = msg.Parts[2];
@@ -300,11 +497,41 @@ namespace dabbit.Base
                         if (!this.attributes.ContainsKey(key))
                         {
                             this.attributes.Add(key, value);
+                        }
+                        else
+                        {
+                            this.attributes[key] = value;
+                        }
 
-                            if (key == "NAMESX")
-                            {
-                                this.connection.Write("PROTOCTL NAMESX");
-                            }
+                        if (key == "NAMESX")
+                        {
+                            this.connection.Write("PROTOCTL NAMESX");
+                            this.multiModes = true;
+                        }
+                        else if (key == "UHNAMES")
+                        {
+                            this.connection.Write("PROTOCTL UHNAMES");
+                        } 
+                        else if (key == "PREFIX")
+                        {
+                            string tosplit = value.Substring(1);
+                            string[] split = tosplit.Split(')');
+                            this.Attributes.Add("PREFIX_MODES", split[0]);
+                            this.Attributes.Add("PREFIX_PREFIXES", split[1]);
+                            this.hostInNames = true;
+                        }
+                        else if (key == "CHANMODES")
+                        {
+                            string[] chanmodes = value.Split(',');
+
+                            // Mode that adds or removes nick or address to a list
+                            this.Attributes.Add("CHANMODES_A", chanmodes[0]);
+                            // Changes a setting and always had a parameter
+                            this.Attributes.Add("CHANMODES_B", chanmodes[1]);
+                            // Only has a parameter when set
+                            this.Attributes.Add("CHANMODES_C", chanmodes[2]);
+                            // Never has a parameter
+                            this.Attributes.Add("CHANMODES_D", chanmodes[3]);
                         }
                     }
                     break;
@@ -334,6 +561,35 @@ namespace dabbit.Base
             }
         }
 
+        private int sortuser(User u1, User u2)
+        {
+
+            string prefixes = this.Attributes["PREFIX_PREFIXES"];
+
+            if (u1.Modes.Count() == 0)
+            {
+                if (u2.Modes.Count() == 0)
+                {
+                    return u1.Nick.CompareTo(u2.Nick);
+                }
+                return 1;
+            }
+
+            if (u2.Modes.Count() == 0)
+            {
+                return -1;
+            }
+
+            int res = prefixes.IndexOf(u1.Modes[0][0]).CompareTo(prefixes.IndexOf(u2.Modes[0][0]));
+
+            if (res == 0)
+            {
+                res = u1.Nick.CompareTo(u2.Nick);
+            }
+
+            return res;
+        }
+
         private List<Channel> channels = new List<Channel>();
         private User me;
         private ServerType serverType = ServerType.Unknown;
@@ -341,5 +597,6 @@ namespace dabbit.Base
         private Connection connection;
         private IContext ctx;
         private bool multiModes = false;
+        private bool hostInNames = false;
     }
 }

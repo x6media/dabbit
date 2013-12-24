@@ -60,6 +60,13 @@ namespace dabbit.UnitTests
 :dab!dabitp@dab.biz PRIVMSG +#dab :" + "\001ACTION Hello World\001" + @"
 :dab!dabitp@dab.biz NOTICE dab :" + "\001ACTION Hello World\001" + @"
 :dab!dabitp@dab.biz PRIVMSG dab :" + "\001ACTION Hello World\001" + @"
+:lkjfsdlkf!ident@host JOIN :#dab
+:hyperion.gamergalaxy.net 332 ohno #dab :Welcome to dab's personal channel!!
+:hyperion.gamergalaxy.net 333 ohno #dab dab 1342941141
+:hyperion.gamergalaxy.net 353 ohno = #dab :ohno!ident@host.com Jiggler!ident@host.com %DeBot!ident@host.com Guest41609!ident@host.com @synapse!ident@host.com &@DoBot!ident@host.com josh!ident@host.com &@FoxTrot!ident@host.com ~@dab!ident@host.com dab-!ident@host.com Redirect_Left!ident@host.com
+:hyperion.gamergalaxy.net 366 ohno #dab :End of /NAMES list.
+:hyperion.gamergalaxy.net 324 dabbbb #dab +r
+:john!hello@thishost.com JOIN :#dab
 :hyperion.gamergalaxy.net 999 lkjfsdlkf :END OF TEST DATA!
 ";
             MemoryStream read = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(input));
@@ -79,6 +86,9 @@ namespace dabbit.UnitTests
             bool onQueryMessageNotice = false;
             bool onQueryAction = false;
             bool onQueryActionNotice = false;
+
+            bool onJoin = false;
+            bool onNewChannel = false;
 
             // Test properties
             ctx.Reader = read;
@@ -190,6 +200,16 @@ namespace dabbit.UnitTests
                 onQueryActionNotice = true;
             };
 
+            ctx.Servers[0].OnJoin += delegate(object sender, JoinMessage e)
+            {
+                onJoin = true;
+            };
+
+            ctx.Servers[0].OnNewChannelJoin += delegate(object sender, JoinMessage e)
+            {
+                onNewChannel = true;
+            };
+
             thrd = new Thread(ctx.Servers[0].Connection.ReadAsync);
 
             thrd.Start();
@@ -222,6 +242,24 @@ namespace dabbit.UnitTests
             Assert.IsTrue(onQueryMessageNotice, "Did not parse query Msg Notice correctly");
             Assert.IsTrue(onQueryAction, "Did not parse Action query correctly");
             Assert.IsTrue(onQueryActionNotice, "Did not parse Action Notice query correctly");
+
+            Assert.IsTrue(onJoin, "OnJoin callback was not fired");
+            Assert.IsTrue(onNewChannel, "OnNewChannelJoin was not called back");
+
+            Channel tmp = ctx.Servers[0].Channels["#dab"];
+
+            Assert.AreEqual("dab", tmp.Users[0].Nick, "Nicks in wrong order");
+            Assert.AreEqual("DoBot", tmp.Users[1].Nick, "Nicks in wrong order");
+            Assert.AreEqual("FoxTrot", tmp.Users[2].Nick, "Nicks in wrong order");
+            Assert.AreEqual("synapse", tmp.Users[3].Nick, "Nicks in wrong order");
+            Assert.AreEqual("DeBot", tmp.Users[4].Nick, "Nicks in wrong order");
+            Assert.AreEqual("dab-", tmp.Users[5].Nick, "Nicks in wrong order");
+            Assert.AreEqual("Guest41609", tmp.Users[6].Nick, "Nicks in wrong order");
+            Assert.AreEqual("Jiggler", tmp.Users[7].Nick, "Nicks in wrong order");
+            Assert.AreEqual("john", tmp.Users[8].Nick, "Nicks in wrong order");
+            Assert.AreEqual("josh", tmp.Users[9].Nick, "Nicks in wrong order");
+            Assert.AreEqual("ohno", tmp.Users[10].Nick, "Nicks in wrong order");
+            Assert.AreEqual("Redirect_Left", tmp.Users[11].Nick, "Nicks in wrong order");
 
         }
     }

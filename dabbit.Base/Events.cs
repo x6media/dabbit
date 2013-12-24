@@ -14,7 +14,7 @@ namespace dabbit.Base
     public delegate void ErrorEventHandler(object sender, Message e);
     public delegate void PingEventHandler(object sender, Message e);
     public delegate void KickEventHandler(object sender, Message e);
-    public delegate void JoinEventHandler(object sender, Message e);
+    public delegate void JoinEventHandler(object sender, JoinMessage e);
     public delegate void NamesEventHandler(object sender, Message e);
     public delegate void ListEventHandler(object sender, Message e);
     public delegate void PartEventHandler(object sender, Message e);

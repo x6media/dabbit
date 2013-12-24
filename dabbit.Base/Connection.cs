@@ -167,7 +167,8 @@ namespace dabbit.Base
         private Message ReadDirect()
         {
             Message msg = new Message();
-
+            
+            msg.Timestamp = DateTime.Now;
             msg.RawLine = this.socketWrapper.Reader.ReadLine();
 
             if (msg.RawLine == null)

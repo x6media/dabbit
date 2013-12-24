@@ -32,10 +32,27 @@ namespace dabbit.Base
         public SourceEntity To;
         public string Wall; // + % @ & ~ before the channel ?
     }
-    public class NoticeMessage : Message
+    public class JoinMessage : Message
     {
-        public User UserFrom;
-        public string To;
-        public string Wall; // + % @ & ~ before the channel ?
+        public string Channel;
+        public JoinMessage(Message old)
+        {
+            base.From = old.From;
+            base.Command = old.Command;
+            base.MessageLine = old.MessageLine;
+            base.Parts = old.Parts;
+            base.RawLine = old.RawLine;
+            base.Timestamp = old.Timestamp;
+
+            if (base.From.Type == SourceEntityType.Client)
+            {
+                if (old.Parts[2][0] == ':')
+                {
+                    old.Parts[2] = old.Parts[2].Substring(1);
+                }
+
+                this.Channel = old.Parts[2];
+            }
+        }
     }
 }

@@ -18,8 +18,17 @@ namespace dabbit.Base
         {
             Channel chan = (Channel)this.MemberwiseClone();
             chan.Topic = this.Topic.DeepClone();
-
+            
             return chan;
+        }
+
+        public bool ChannelLoaded
+        {
+            get
+            {
+                return !String.IsNullOrEmpty(Name) && Topic != null && !String.IsNullOrEmpty(Topic.Display) &&
+                    Modes != null && Users.Count() != 0 && !String.IsNullOrEmpty(Display);
+            }
         }
     }
 
