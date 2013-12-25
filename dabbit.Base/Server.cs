@@ -44,6 +44,8 @@ namespace dabbit.Base
             }
 
             this.me = me;
+            if (me.Modes == null)
+                me.Modes = new List<string>();
 
             this.ctx = ctx;
             this.Channels = new Dictionary<string, Channel>();
@@ -74,14 +76,14 @@ namespace dabbit.Base
 
 #region Events
 
-        public event IrcEventHandler OnRawMessage;
-        public event ErrorEventHandler OnError;
-        public event JoinEventHandler OnNewChannelJoin;
-        public event PartEventHandler OnCloseChannelPart;
-        public event JoinEventHandler OnJoin;
+        public event IrcEventHandler OnRawMessage; //
+        public event ErrorEventHandler OnError; //
+        public event JoinEventHandler OnNewChannelJoin; //
+        public event PartEventHandler OnCloseChannelPart; //
+        public event JoinEventHandler OnJoin; //
         public event NamesEventHandler OnNames;
         public event ListEventHandler OnList;
-        public event PartEventHandler OnPart;
+        public event PartEventHandler OnPart; //
         public event QuitEventHandler OnQuit;
         public event KickEventHandler OnKick;
         public event IrcEventHandler OnUnAway;
@@ -95,7 +97,7 @@ namespace dabbit.Base
         public event TopicEventHandler OnTopic;
         public event TopicChangeEventHandler OnTopicChange;
         public event NickChangeEventHandler OnNickChange;
-        public event IrcEventHandler OnModeChange;
+        public event ModeChangeEventHandler OnModeChange;
         public event IrcEventHandler OnUserModeChange;
         public event IrcEventHandler OnChannelModeChange;
 
@@ -120,6 +122,7 @@ namespace dabbit.Base
             {
                 return;
             }
+
 
             if (this.OnRawMessage != null)
                 this.OnRawMessage(this, msg);
@@ -266,6 +269,7 @@ namespace dabbit.Base
                 case "ERROR":
                     this.OnError(this, msg);
                     break;
+                #region JOIN
                 case "JOIN":
                     JoinMessage jm = new JoinMessage(msg);
                     if (msg.From.Parts[0] == this.Me.Nick)
@@ -313,6 +317,8 @@ namespace dabbit.Base
                         
                     }
                     break;
+                #endregion
+                #region 324
                 case "324": // :hyperion.gamergalaxy.net 324 dabbbb #dab +r
                     Channel chnl;
                     this.Channels.TryGetValue(msg.Parts[3], out chnl);
@@ -328,7 +334,8 @@ namespace dabbit.Base
                     string modes = msg.Parts[4];
                     int paramidx = 5;
 
-                    for (int i = 0; i < modes.Length; i++)
+                    // 1 was from the + sign in the model.
+                    for (int i = 1; i < modes.Length; i++)
                     {
                         Mode mode = new Mode();
 
@@ -344,11 +351,14 @@ namespace dabbit.Base
 
                         mode.Character = modes[i];
                         mode.Type = ModeType.Channel;
-
+                        chnl.Modes.Add(mode);
                     }
 
+                    this.Channels[msg.Parts[3]] = chnl;
 
                     break;
+                #endregion
+                #region 353
                 case "353": // /Names list item :hyperion.gamergalaxy.net 353 badddd = #dab :badddd BB-Aso
                     //msg.Parts[4] = msg.Parts[4].Substring(1);
                     
@@ -413,6 +423,147 @@ namespace dabbit.Base
                     this.Channels[msg.Parts[5]] = vall;
 
                     break;
+                #endregion
+                case "PART":
+
+                    this.Channels[msg.Parts[2]].Users.Remove
+                        (this.Channels[msg.Parts[2]].Users.Where(u => u.Nick == msg.From.Parts[0]).First());
+
+                    if (this.OnPart != null)
+                    {
+                        this.OnPart(this, msg);
+                    }
+
+
+                    if (msg.From.Parts[0] == me.Nick)
+                    {
+                        this.Channels.Remove(msg.Parts[2]);
+
+                        if (this.OnCloseChannelPart != null)
+                        {
+                            this.OnCloseChannelPart(this, msg);
+                        }
+                    }
+
+                    break;
+                case "QUIT":
+                    List<string> channels = new List<string>();
+
+                    foreach (var chn in this.Channels)
+                    {
+                        User usr = chn.Value.Users.Where(u => u.Nick == msg.From.Parts[0]).FirstOrDefault();
+
+                        if (usr != null)
+                        {
+                            chn.Value.Users.Remove(usr);
+                            channels.Add(chn.Key);
+                        }
+
+                    }
+                    this.OnQuit(this, new QuitMessage(msg) { Channels = channels.ToArray() });
+                    
+                    break;
+                #region MODE
+                case "MODE":
+
+                    string modesstring = msg.Parts[3];
+                    int paramsindex = 4;
+                    bool adding = false;
+
+                    string prefixz = this.Attributes["PREFIX_PREFIXES"];
+
+                    for (int i = 0; i < modesstring.Length; i++)
+                    {
+                        if (modesstring[i] == '+')
+                        {
+                            adding = true;
+                            continue;
+                        }
+                        else if (modesstring[i] == '-')
+                        {
+                            adding = false;
+                            continue;
+                        }
+
+
+                        Mode mode = new Mode();
+                        mode.Display = mode.Character;
+                        mode.ModificationType = adding ? ModeModificationType.Adding : ModeModificationType.Removing;
+
+                        if (this.Attributes["CHANMODES_A"].Contains(modesstring[i].ToString()) ||
+                            this.Attributes["CHANMODES_B"].Contains(modesstring[i].ToString()) ||
+                            this.Attributes["CHANMODES_C"].Contains(modesstring[i].ToString()))
+                        {
+                            mode.Argument = msg.Parts[paramsindex++];
+                        }
+
+                        mode.Character = modesstring[i];
+
+                        if (msg.Parts[2] != me.Nick && this.Attributes["PREFIX_MODES"].Contains(modesstring[i].ToString()))
+                        {
+                            mode.Type = ModeType.User;
+                            mode.Argument = msg.Parts[paramsindex++];
+
+                            mode.Character = this.Attributes["PREFIX_PREFIXES"][this.Attributes["PREFIX_MODES"].IndexOf(mode.Character)];
+
+                            int userid = this.Channels[msg.Parts[2]].Users.
+                                Select((item, index) => new { Index = index, Item = item })
+                                .Where(u => u.Item.Nick == mode.Argument).First().Index;
+
+                            if (mode.ModificationType == ModeModificationType.Removing)
+                            {
+                                this.Channels[msg.Parts[2]].Users[userid].Modes.
+                                    Remove(this.Channels[msg.Parts[2]].Users[userid].Modes.
+                                    Where(m => m == mode.Character.ToString()).First());
+
+
+                                this.Channels[msg.Parts[2]].Users[userid].Modes.Sort(delegate(string s1, string s2)
+                                {
+                                    return prefixz.IndexOf(s1[0]).CompareTo(prefixz.IndexOf(s2[0]));
+                                });
+                            }
+                            else
+                            {
+                                this.Channels[msg.Parts[2]].Users[userid].Modes.Add(mode.Character.ToString());
+                            }
+
+                            this.Channels[msg.Parts[2]].Users.Sort(sortuser);
+                        }
+                        else if (msg.Parts[2] == me.Nick)
+                        {
+                            mode.Type = ModeType.UMode;
+                            if (mode.ModificationType == ModeModificationType.Adding)
+                            {
+                                me.Modes.Add(mode.Character.ToString());
+                            }
+                            else
+                            {
+                                me.Modes.Remove(me.Modes.Where(m => m[0] == mode.Character).First());
+                            }
+                        }
+                        else
+                        {
+                            mode.Type = ModeType.Channel;
+                            if (mode.ModificationType == ModeModificationType.Adding)
+                            {
+                                this.Channels[msg.Parts[2]].Modes.Add(mode);
+                            }
+                            else
+                            {
+                                this.Channels[msg.Parts[2]].Modes.Remove
+                                    (this.Channels[msg.Parts[2]].Modes.Where(m => m.Character == mode.Character).First());
+                            }
+                        }
+
+                        if (this.OnModeChange != null)
+                        {
+                            this.OnModeChange(this, new ModeMessage(msg) { Mode = mode });
+                        }
+
+                    }
+
+                    break;
+                #endregion
                 case "366": // End of /names list
 
                     JoinMessage jm_ = new JoinMessage(msg);
@@ -476,6 +627,7 @@ namespace dabbit.Base
                         }
                     }
                     break;
+                #region 005
                 case "005":
                     for (int i = 3; i < msg.Parts.Count(); i++)
                     {
@@ -535,6 +687,7 @@ namespace dabbit.Base
                         }
                     }
                     break;
+                #endregion
                 case "CAP":
                     // :leguin.freenode.net CAP goooooodab LS :account-notify extended-join identify-msg multi-prefix sasl
 

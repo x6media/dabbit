@@ -10,6 +10,7 @@ namespace dabbit.Base
     public delegate void PrivmsgEventHandler(object sender, PrivmsgMessage e);
     public delegate void NoticeEventHandler(object sender, PrivmsgMessage e);
     public delegate void ActionEventHandler(object sender, PrivmsgMessage e);
+    public delegate void ModeChangeEventHandler(object sender, ModeMessage e);
     public delegate void CtcpEventHandler(object sender, Message e);
     public delegate void ErrorEventHandler(object sender, Message e);
     public delegate void PingEventHandler(object sender, Message e);
@@ -36,7 +37,7 @@ namespace dabbit.Base
     public delegate void TopicEventHandler(object sender, Message e);
     public delegate void TopicChangeEventHandler(object sender, Message e);
     public delegate void NickChangeEventHandler(object sender, Message e);
-    public delegate void QuitEventHandler(object sender, Message e);
+    public delegate void QuitEventHandler(object sender, QuitMessage e);
     public delegate void AwayEventHandler(object sender, Message e);
     public delegate void WhoEventHandler(object sender, Message e);
     public delegate void MotdEventHandler(object sender, Message e);

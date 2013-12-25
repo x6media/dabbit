@@ -5,6 +5,7 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Threading;
+using System.Linq;
 
 namespace dabbit.UnitTests
 {
@@ -63,10 +64,18 @@ namespace dabbit.UnitTests
 :lkjfsdlkf!ident@host JOIN :#dab
 :hyperion.gamergalaxy.net 332 ohno #dab :Welcome to dab's personal channel!!
 :hyperion.gamergalaxy.net 333 ohno #dab dab 1342941141
-:hyperion.gamergalaxy.net 353 ohno = #dab :ohno!ident@host.com Jiggler!ident@host.com %DeBot!ident@host.com Guest41609!ident@host.com @synapse!ident@host.com &@DoBot!ident@host.com josh!ident@host.com &@FoxTrot!ident@host.com ~@dab!ident@host.com dab-!ident@host.com Redirect_Left!ident@host.com
+:hyperion.gamergalaxy.net 353 ohno = #dab :ohno!ident@host.com Jiggler!ident@host.com %+DeBot!ident@host.com Guest41609!ident@host.com @synapse!ident@host.com &@DoBot!ident@host.com josh!ident@host.com &@FoxTrot!ident@host.com ~@dab!ident@host.com %dab-!ident@host.com Redirect_Left!ident@host.com
 :hyperion.gamergalaxy.net 366 ohno #dab :End of /NAMES list.
-:hyperion.gamergalaxy.net 324 dabbbb #dab +r
+:hyperion.gamergalaxy.net 324 dabbbb #dab +rknt hi
 :john!hello@thishost.com JOIN :#dab
+:john2!hello@thishost.com JOIN :#dab
+:john2quit!hello@thishost.com JOIN :#dab
+:hyperion.gamergalaxy.net MODE #dab +bi-i dab!*@*
+:dab!dabitp@dab.biz MODE #dab +a john
+:dab!dabitp@dab.biz MODE lkjfsdlkf +az
+:dab!dabitp@dab.biz MODE lkjfsdlkf -z
+:john2!hello@thishost.com PART #dab
+:john2quit!hello@thishost.com QUIT :Bye bye!
 :hyperion.gamergalaxy.net 999 lkjfsdlkf :END OF TEST DATA!
 ";
             MemoryStream read = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(input));
@@ -89,6 +98,8 @@ namespace dabbit.UnitTests
 
             bool onJoin = false;
             bool onNewChannel = false;
+
+            bool onQuitTest = false;
 
             // Test properties
             ctx.Reader = read;
@@ -210,12 +221,20 @@ namespace dabbit.UnitTests
                 onNewChannel = true;
             };
 
+            ctx.Servers[0].OnQuit += delegate(object sender, QuitMessage e)
+            {
+                if (e.Channels[0] == "#dab")
+                {
+                    onQuitTest = true;
+                }
+            };
+
             thrd = new Thread(ctx.Servers[0].Connection.ReadAsync);
 
             thrd.Start();
 
 
-            serverParseTest.WaitOne();
+            Assert.IsTrue(serverParseTest.WaitOne(3000), "Parsing Timed out, possibly due to an error in the other thread. Please debug test");
             Thread.Sleep(900);
 
             Assert.AreEqual("lkjfsdlkf", ctx.Servers[0].Me.Nick, "Nicknames are not equal");
@@ -246,21 +265,33 @@ namespace dabbit.UnitTests
             Assert.IsTrue(onJoin, "OnJoin callback was not fired");
             Assert.IsTrue(onNewChannel, "OnNewChannelJoin was not called back");
 
+            Assert.IsTrue(onQuitTest, "Quit test did not pass. Did not quit with proper channels");
+
             Channel tmp = ctx.Servers[0].Channels["#dab"];
+            
+            int order = 0;
 
-            Assert.AreEqual("dab", tmp.Users[0].Nick, "Nicks in wrong order");
-            Assert.AreEqual("DoBot", tmp.Users[1].Nick, "Nicks in wrong order");
-            Assert.AreEqual("FoxTrot", tmp.Users[2].Nick, "Nicks in wrong order");
-            Assert.AreEqual("synapse", tmp.Users[3].Nick, "Nicks in wrong order");
-            Assert.AreEqual("DeBot", tmp.Users[4].Nick, "Nicks in wrong order");
-            Assert.AreEqual("dab-", tmp.Users[5].Nick, "Nicks in wrong order");
-            Assert.AreEqual("Guest41609", tmp.Users[6].Nick, "Nicks in wrong order");
-            Assert.AreEqual("Jiggler", tmp.Users[7].Nick, "Nicks in wrong order");
-            Assert.AreEqual("john", tmp.Users[8].Nick, "Nicks in wrong order");
-            Assert.AreEqual("josh", tmp.Users[9].Nick, "Nicks in wrong order");
-            Assert.AreEqual("ohno", tmp.Users[10].Nick, "Nicks in wrong order");
-            Assert.AreEqual("Redirect_Left", tmp.Users[11].Nick, "Nicks in wrong order");
+            Assert.AreEqual("dab", tmp.Users[order++].Nick, "Nicks in wrong order");
+            Assert.AreEqual("DoBot", tmp.Users[order++].Nick, "Nicks in wrong order");
+            Assert.AreEqual("FoxTrot", tmp.Users[order++].Nick, "Nicks in wrong order");
+            Assert.AreEqual("john", tmp.Users[order++].Nick, "Nicks in wrong order");
+            Assert.AreEqual("synapse", tmp.Users[order++].Nick, "Nicks in wrong order");
+            Assert.AreEqual("dab-", tmp.Users[order++].Nick, "Nicks in wrong order");
+            Assert.AreEqual("DeBot", tmp.Users[order++].Nick, "Nicks in wrong order");
+            Assert.AreEqual("Guest41609", tmp.Users[order++].Nick, "Nicks in wrong order");
+            Assert.AreEqual("Jiggler", tmp.Users[order++].Nick, "Nicks in wrong order");
+            Assert.AreEqual("josh", tmp.Users[order++].Nick, "Nicks in wrong order");
+            Assert.AreEqual("ohno", tmp.Users[order++].Nick, "Nicks in wrong order");
+            Assert.AreEqual("Redirect_Left", tmp.Users[order++].Nick, "Nicks in wrong order");
 
+            Assert.AreEqual("hi", tmp.Modes[1].Argument, "Argument key not hi");
+
+            Assert.AreEqual('a', ctx.Servers[0].Me.Modes[0][0], "The Me variable should have the a mode set");
+
+            Assert.IsNull(tmp.Modes.Where(p => p.Character == 'i').FirstOrDefault(), "Channel Mode should have been removed");
+            Assert.IsNull(ctx.Servers[0].Me.Modes.Where(p => p == "z").FirstOrDefault(), "User Mode should have been removed");
+
+            Assert.IsNull(tmp.Users.Where(p => p.Nick == "john2").FirstOrDefault(), "John should have been removed from the user list");
         }
     }
 

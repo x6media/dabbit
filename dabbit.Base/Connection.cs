@@ -171,7 +171,7 @@ namespace dabbit.Base
             msg.Timestamp = DateTime.Now;
             msg.RawLine = this.socketWrapper.Reader.ReadLine();
 
-            if (msg.RawLine == null)
+            if (String.IsNullOrEmpty(msg.RawLine))
             {
                 return null;
             }

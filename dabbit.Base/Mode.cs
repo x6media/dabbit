@@ -16,6 +16,8 @@ namespace dabbit.Base
         public string Argument { get; internal set; }
 
         public ModeType Type { get; internal set; }
+
+        public ModeModificationType ModificationType { get; internal set; }
     }
 
     public enum ModeType
@@ -23,5 +25,11 @@ namespace dabbit.Base
 		User,
 		Channel,
 		UMode
+    }
+
+    public enum ModeModificationType
+    {
+        Adding,
+        Removing
     }
 }

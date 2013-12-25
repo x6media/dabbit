@@ -32,6 +32,7 @@ namespace dabbit.Base
         public SourceEntity To;
         public string Wall; // + % @ & ~ before the channel ?
     }
+
     public class JoinMessage : Message
     {
         public string Channel;
@@ -53,6 +54,37 @@ namespace dabbit.Base
 
                 this.Channel = old.Parts[2];
             }
+        }
+    }
+
+    public class ModeMessage : Message
+    {
+        public bool Adding;
+        public Mode Mode;
+
+        public ModeMessage(Message old)
+        {
+            base.From = old.From;
+            base.Command = old.Command;
+            base.MessageLine = old.MessageLine;
+            base.Parts = old.Parts;
+            base.RawLine = old.RawLine;
+            base.Timestamp = old.Timestamp;
+        }
+    }
+
+    public class QuitMessage : Message
+    {
+        public string[] Channels;
+
+        public QuitMessage(Message old)
+        {
+            base.From = old.From;
+            base.Command = old.Command;
+            base.MessageLine = old.MessageLine;
+            base.Parts = old.Parts;
+            base.RawLine = old.RawLine;
+            base.Timestamp = old.Timestamp;
         }
     }
 }
