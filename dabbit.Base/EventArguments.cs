@@ -87,4 +87,61 @@ namespace dabbit.Base
             base.Timestamp = old.Timestamp;
         }
     }
+
+    public class NickChangeMessage : Message
+    {
+        public string To;
+        public string[] Channels;
+        public NickChangeMessage(Message old)
+        {
+            base.From = old.From;
+            base.Command = old.Command;
+            base.MessageLine = old.MessageLine;
+            base.Parts = old.Parts;
+            base.RawLine = old.RawLine;
+            base.Timestamp = old.Timestamp;
+
+            this.To = old.Parts[2];
+        }
+    }
+
+    public class WhoisMessage : Message
+    {
+        public User Who;
+
+        public WhoisMessage(Message old)
+        {
+            base.From = old.From;
+            base.Command = old.Command;
+            base.MessageLine = old.MessageLine;
+            base.Parts = old.Parts;
+            base.RawLine = old.RawLine;
+            base.Timestamp = old.Timestamp;
+        }
+    }
+
+    public class ListMessage : Message
+    {
+
+        public ListEntry[] Entries;
+
+        public ListMessage(Message old)
+        {
+            base.From = old.From;
+            base.Command = old.Command;
+            base.MessageLine = old.MessageLine;
+            base.Parts = old.Parts;
+            base.RawLine = old.RawLine;
+            base.Timestamp = old.Timestamp;
+        }
+    
+    
+    }
+
+    public class ListEntry
+    {
+        public string Channel;
+        public int Users;
+        public string Topic;
+    }
 }

@@ -17,7 +17,7 @@ namespace dabbit.Base
     public delegate void KickEventHandler(object sender, Message e);
     public delegate void JoinEventHandler(object sender, JoinMessage e);
     public delegate void NamesEventHandler(object sender, Message e);
-    public delegate void ListEventHandler(object sender, Message e);
+    public delegate void ListEventHandler(object sender, ListMessage e);
     public delegate void PartEventHandler(object sender, Message e);
     public delegate void InviteEventHandler(object sender, Message e);
     public delegate void OpEventHandler(object sender, Message e);
@@ -35,11 +35,10 @@ namespace dabbit.Base
     public delegate void BanEventHandler(object sender, Message e);
     public delegate void UnbanEventHandler(object sender, Message e);
     public delegate void TopicEventHandler(object sender, Message e);
-    public delegate void TopicChangeEventHandler(object sender, Message e);
-    public delegate void NickChangeEventHandler(object sender, Message e);
+    public delegate void NickChangeEventHandler(object sender, NickChangeMessage e);
     public delegate void QuitEventHandler(object sender, QuitMessage e);
     public delegate void AwayEventHandler(object sender, Message e);
-    public delegate void WhoEventHandler(object sender, Message e);
+    public delegate void WhoIsEventHandler(object sender, WhoisMessage e);
     public delegate void MotdEventHandler(object sender, Message e);
     public delegate void PongEventHandler(object sender, Message e);
 }

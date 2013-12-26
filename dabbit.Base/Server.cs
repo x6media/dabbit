@@ -49,7 +49,8 @@ namespace dabbit.Base
 
             this.ctx = ctx;
             this.Channels = new Dictionary<string, Channel>();
-            
+            this.OnNumeric = new Dictionary<RawReplies, IrcEventHandler>();
+
             this.connection = connection;
             this.connection.RawMessageReceived = this.rawMessageReceived;
 
@@ -75,7 +76,7 @@ namespace dabbit.Base
 
 
 #region Events
-
+        public event IrcEventHandler OnConnectionEstablished;
         public event IrcEventHandler OnRawMessage; //
         public event ErrorEventHandler OnError; //
         public event JoinEventHandler OnNewChannelJoin; //
@@ -84,22 +85,21 @@ namespace dabbit.Base
         public event NamesEventHandler OnNames;
         public event ListEventHandler OnList;
         public event PartEventHandler OnPart; //
-        public event QuitEventHandler OnQuit;
-        public event KickEventHandler OnKick;
-        public event IrcEventHandler OnUnAway;
-        public event IrcEventHandler OnAway;
-        public event InviteEventHandler OnInvite;
-        public event BanEventHandler OnBan;
-        public event UnbanEventHandler OnUnban;
+        public event QuitEventHandler OnQuit; //
+        public event KickEventHandler OnKick; //
+        public event IrcEventHandler OnUnAway; //
+        public event IrcEventHandler OnAway; //
+        public event InviteEventHandler OnInvite; //
+        public event BanEventHandler OnBan; //
+        public event UnbanEventHandler OnUnban; //
 
-        public event WhoEventHandler OnWho;
+        public event WhoIsEventHandler OnWhoIs; // 
         public event MotdEventHandler OnMotd;
-        public event TopicEventHandler OnTopic;
-        public event TopicChangeEventHandler OnTopicChange;
-        public event NickChangeEventHandler OnNickChange;
-        public event ModeChangeEventHandler OnModeChange;
-        public event IrcEventHandler OnUserModeChange;
-        public event IrcEventHandler OnChannelModeChange;
+        public event TopicEventHandler OnTopic; //
+        public event NickChangeEventHandler OnNickChange; //
+        public event ModeChangeEventHandler OnModeChange; //
+        public event IrcEventHandler OnUserModeChange; //
+        public event IrcEventHandler OnChannelModeChange; //
 
         public event PrivmsgEventHandler OnChannelMessage; // Channel->No Action->Not Notice
         public event PrivmsgEventHandler OnChannelMessageNotice; // Channel->No Action->Notice
@@ -114,6 +114,8 @@ namespace dabbit.Base
         public event CtcpEventHandler OnCtcpRequest;
         public event CtcpEventHandler OnCtcpReply;
 
+        public Dictionary<RawReplies, IrcEventHandler> OnNumeric;
+
 #endregion
 
         private void rawMessageReceived(Message msg)
@@ -126,6 +128,25 @@ namespace dabbit.Base
 
             if (this.OnRawMessage != null)
                 this.OnRawMessage(this, msg);
+            int temp;
+
+            if (Int32.TryParse(msg.Command, out temp))
+            {
+                RawReplies rawenum = (RawReplies)temp;
+
+                if (rawenum != null)
+                {
+                    IrcEventHandler evtdel;
+
+                    this.OnNumeric.TryGetValue(rawenum, out evtdel);
+
+                    if (evtdel != null)
+                    {
+                        evtdel(this, msg);
+                    }
+                }
+            }
+
 
             switch (msg.Command)
             {
@@ -263,12 +284,14 @@ namespace dabbit.Base
 
                     break;
                 #endregion
+                #region PING/ERROR
                 case "PING":
                     this.connection.Write("PONG " + msg.Parts[1]);
                     break;
                 case "ERROR":
                     this.OnError(this, msg);
                     break;
+                #endregion
                 #region JOIN
                 case "JOIN":
                     JoinMessage jm = new JoinMessage(msg);
@@ -318,7 +341,7 @@ namespace dabbit.Base
                     }
                     break;
                 #endregion
-                #region 324
+                #region 324 Channel modes (On Join)
                 case "324": // :hyperion.gamergalaxy.net 324 dabbbb #dab +r
                     Channel chnl;
                     this.Channels.TryGetValue(msg.Parts[3], out chnl);
@@ -358,7 +381,7 @@ namespace dabbit.Base
 
                     break;
                 #endregion
-                #region 353
+                #region 353 Channel Users (On Join)
                 case "353": // /Names list item :hyperion.gamergalaxy.net 353 badddd = #dab :badddd BB-Aso
                     //msg.Parts[4] = msg.Parts[4].Substring(1);
                     
@@ -424,6 +447,7 @@ namespace dabbit.Base
 
                     break;
                 #endregion
+                #region PART
                 case "PART":
 
                     this.Channels[msg.Parts[2]].Users.Remove
@@ -446,6 +470,8 @@ namespace dabbit.Base
                     }
 
                     break;
+                #endregion
+                #region QUIT
                 case "QUIT":
                     List<string> channels = new List<string>();
 
@@ -463,6 +489,51 @@ namespace dabbit.Base
                     this.OnQuit(this, new QuitMessage(msg) { Channels = channels.ToArray() });
                     
                     break;
+                #endregion
+                #region KICK
+                case "KICK":
+                    // :from kick #channel nick :Reason (optional)
+
+                    this.Channels[msg.Parts[2]].Users.Remove(this.Channels[msg.Parts[2]].Users.Where(u => u.Nick == msg.Parts[3]).First());
+
+                    if (this.OnKick != null)
+                    {
+                        this.OnKick(this, msg);
+                    }
+
+                    break;
+                #endregion
+                #region NICK
+                case "NICK":
+                    NickChangeMessage nickmsg = new NickChangeMessage(msg);
+                                        
+                    List<string> nickchannels = new List<string>();
+
+                    foreach (var chn in this.Channels)
+                    {
+                        User usr = chn.Value.Users.Where(u => u.Nick == msg.From.Parts[0]).FirstOrDefault();
+                        int usridx = chn.Value.Users.IndexOf(usr);
+
+                        if (usr != null)
+                        {
+                            this.Channels[chn.Value.Display].Users[usridx].Nick = nickmsg.To;
+                            this.Channels[chn.Value.Display].Users.Sort(sortuser);
+                            nickchannels.Add(chn.Key);
+                        }
+
+                        
+
+                    }
+
+                    nickmsg.Channels = nickchannels.ToArray();
+                    
+                    if (this.OnNickChange != null)
+                    {
+                        this.OnNickChange(this, nickmsg);
+                    }
+
+                    break;
+                #endregion
                 #region MODE
                 case "MODE":
 
@@ -495,6 +566,10 @@ namespace dabbit.Base
                             this.Attributes["CHANMODES_C"].Contains(modesstring[i].ToString()))
                         {
                             mode.Argument = msg.Parts[paramsindex++];
+                        }
+                        else
+                        {
+                            mode.Argument = String.Empty;
                         }
 
                         mode.Character = modesstring[i];
@@ -547,11 +622,29 @@ namespace dabbit.Base
                             if (mode.ModificationType == ModeModificationType.Adding)
                             {
                                 this.Channels[msg.Parts[2]].Modes.Add(mode);
+
+                                if (mode.Character == 'b')
+                                {
+                                    if (this.OnBan != null)
+                                    {
+                                        this.OnBan(this, msg);
+                                    }
+                                }
                             }
                             else
                             {
                                 this.Channels[msg.Parts[2]].Modes.Remove
-                                    (this.Channels[msg.Parts[2]].Modes.Where(m => m.Character == mode.Character).First());
+                                    (this.Channels[msg.Parts[2]].Modes.Where(m => m.Character == mode.Character &&
+                                        mode.Argument == m.Argument).First());
+
+
+                                if (mode.Character == 'b')
+                                {
+                                    if (this.OnUnban != null)
+                                    {
+                                        this.OnUnban(this, msg);
+                                    }
+                                }
                             }
                         }
 
@@ -564,6 +657,7 @@ namespace dabbit.Base
 
                     break;
                 #endregion
+                #region 366 End of /Names List
                 case "366": // End of /names list
 
                     JoinMessage jm_ = new JoinMessage(msg);
@@ -574,6 +668,8 @@ namespace dabbit.Base
                         this.OnNewChannelJoin(this, jm_);
                     }
                     break;
+                #endregion
+                #region 332 Channel Topic (On Join)
                 case "332":
                     Channel tmpchan;
 
@@ -589,7 +685,14 @@ namespace dabbit.Base
                     tmpchan.Topic.Display = msg.MessageLine;
 
                     this.Channels[msg.Parts[3]] = tmpchan;
+
+                    if (this.OnTopic != null)
+                    {
+                        this.OnTopic(this, msg);
+                    }
                     break;
+                #endregion
+                #region 333 Channel Topic set by and when (on join)
                 case "333": // Who set the topic and when they set it
                     
                     Channel tmpchan2;
@@ -612,8 +715,8 @@ namespace dabbit.Base
 
                     this.Channels[msg.Parts[3]] = tmpchan2;
                     break;
-                case "372": // MOTD 376 eomtd
-                    break;
+                #endregion
+                #region 004
                 case "004": // Get Server Type
                     Array values = Enum.GetValues(typeof(ServerType));
                     this.me.Nick = msg.Parts[2];
@@ -627,6 +730,7 @@ namespace dabbit.Base
                         }
                     }
                     break;
+                #endregion
                 #region 005
                 case "005":
                     for (int i = 3; i < msg.Parts.Count(); i++)
@@ -688,6 +792,7 @@ namespace dabbit.Base
                     }
                     break;
                 #endregion
+                #region CAP
                 case "CAP":
                     // :leguin.freenode.net CAP goooooodab LS :account-notify extended-join identify-msg multi-prefix sasl
 
@@ -711,6 +816,234 @@ namespace dabbit.Base
 
                     this.connection.Write("CAP END");
                     break;
+                #endregion
+                #region AWWAY/UNAWAY
+                case "306": // :irc.foonet.com 306 dabb :You have been marked as being away
+
+                    if (this.OnAway != null)
+                        this.OnAway(this, msg);
+                    break;
+                case "305": // :irc.foonet.com 305 dabb :You are no longer marked as being away
+                    if (this.OnUnAway != null)
+                        this.OnUnAway(this, msg);
+                    break;
+                #endregion
+                #region INVITE
+                case "INVITE": // :dab!dabitp@dab.biz INVITE dabb :#dab
+
+                    this.OnInvite(this, msg);
+
+                    break;
+                #endregion
+                #region WHOIS
+                    /*
+                     * 
+                     * 
+                    
+                    :hyperion.gamergalaxy.net 307 dabbb dab :is a registered nick
+                    :hyperion.gamergalaxy.net 319 dabbb dab :~#dab &#gamergalaxy ~#dab.beta &#office
+                    :hyperion.gamergalaxy.net 312 dabbb dab hyperion.gamergalaxy.net :Gamer Galaxy IRC
+                    :hyperion.gamergalaxy.net 313 dabbb dab :is a Network Administrator
+                    :hyperion.gamergalaxy.net 310 dabbb dab :is available for help.
+                    :hyperion.gamergalaxy.net 671 dabbb dab :is using a Secure Connection
+                    :hyperion.gamergalaxy.net 317 dabbb dab 4405 1383796581 :seconds idle, signon time
+                    :hyperion.gamergalaxy.net 318 dabbb dab :End of /WHOIS list.
+                    */
+                // All of these are WHOIS results.
+                case "311": // :hyperion.gamergalaxy.net 311 dabbb dab dabitp dab.biz * :David
+
+                    // Either never done a whois before or recycle old whois result
+                    // Meaning the whois is not thread safe.
+                    if (this.tempWhois == null || tempWhois.Nick != msg.Parts[3])
+                    {
+                        this.tempWhois = new User();
+                        this.tempWhois.Nick = msg.Parts[3];
+                    }
+
+                    this.tempWhois.Ident = msg.Parts[4];
+                    this.tempWhois.Host = msg.Parts[5];
+                    this.tempWhois.Nick = msg.Parts[6];
+
+                    break;
+                case "378": // (IRCOP Message) :simmons.freenode.net 378 ivazquez ivazquez :is connecting from *@host ip
+                    // Either never done a whois before or recycle old whois result
+                    // Meaning the whois is not thread safe.
+                    if (this.tempWhois == null || tempWhois.Nick != msg.Parts[3])
+                    {
+                        this.tempWhois = new User();
+                        this.tempWhois.Nick = msg.Parts[3];
+                    }
+
+                    this.tempWhois.Host = msg.Parts[7] + " - " + msg.Parts[8];
+
+                    break;
+                case "379": // :irc.foonet.com 379 dab dab :is using modes +iowghaAsxN +kcfvGqso
+                    // Either never done a whois before or recycle old whois result
+                    // Meaning the whois is not thread safe.
+                    if (this.tempWhois == null || tempWhois.Nick != msg.Parts[3])
+                    {
+                        this.tempWhois = new User();
+                        this.tempWhois.Nick = msg.Parts[3];
+                    }
+
+                    this.tempWhois.Modes = new List<string>();
+                    this.tempWhois.Modes.Add(msg.Parts[8] + " " + msg.Parts[9]);
+
+                    break;
+                case "307": // :registered nick?
+                    // Either never done a whois before or recycle old whois result
+                    // Meaning the whois is not thread safe.
+                    if (this.tempWhois == null || tempWhois.Nick != msg.Parts[3])
+                    {
+                        this.tempWhois = new User();
+                        this.tempWhois.Nick = msg.Parts[3];
+                    }
+
+                    this.tempWhois.Identified = true;
+
+                    break;
+                case "319": // Channels :hyperion.gamergalaxy.net 319 dabbb dab :~#dab &#gamergalaxy ~#dab.beta &#office
+                    // Either never done a whois before or recycle old whois result
+                    // Meaning the whois is not thread safe.
+                    if (this.tempWhois == null || tempWhois.Nick != msg.Parts[3])
+                    {
+                        this.tempWhois = new User();
+                        this.tempWhois.Nick = msg.Parts[3];
+                    }
+
+                    this.tempWhois.Channels = new List<Channel>();
+
+                    msg.Parts[4] = msg.Parts[4].Substring(1);
+
+                    for (int i = 4; i < msg.Parts.Count(); i++)
+                    {
+                        this.tempWhois.Channels.Add(new Channel() { Name = msg.Parts[i], Display = msg.Parts[i] });
+                    }
+
+                    break;
+                case "312": // Server :hyperion.gamergalaxy.net 312 dabbb dab hyperion.gamergalaxy.net :Gamer Galaxy IRC
+                    // Either never done a whois before or recycle old whois result
+                    // Meaning the whois is not thread safe.
+                    if (this.tempWhois == null || tempWhois.Nick != msg.Parts[3])
+                    {
+                        this.tempWhois = new User();
+                        this.tempWhois.Nick = msg.Parts[3];
+                    }
+
+                    this.tempWhois.Server = msg.Parts[4] + " " + msg.MessageLine;
+
+                    break;
+                case "313": // is a net admin
+                    // Either never done a whois before or recycle old whois result
+                    // Meaning the whois is not thread safe.
+                    if (this.tempWhois == null || tempWhois.Nick != msg.Parts[3])
+                    {
+                        this.tempWhois = new User();
+                        this.tempWhois.Nick = msg.Parts[3];
+                    }
+
+                    this.tempWhois.IrcOp = msg.MessageLine;
+
+                    break;
+                case "310": // available for help
+                    // Either never done a whois before or recycle old whois result
+                    // Meaning the whois is not thread safe.
+                    if (this.tempWhois == null || tempWhois.Nick != msg.Parts[3])
+                    {
+                        this.tempWhois = new User();
+                        this.tempWhois.Nick = msg.Parts[3];
+                    }
+
+                    this.tempWhois.Attributes.Add(msg.MessageLine);
+
+                    break;
+                case "671": // secure connection
+                    // Either never done a whois before or recycle old whois result
+                    // Meaning the whois is not thread safe.
+                    if (this.tempWhois == null || tempWhois.Nick != msg.Parts[3])
+                    {
+                        this.tempWhois = new User();
+                        this.tempWhois.Nick = msg.Parts[3];
+                    }
+
+                    this.tempWhois.Attributes.Add(msg.MessageLine);
+
+                    break;
+                case "317": // idle time
+                    // Either never done a whois before or recycle old whois result
+                    // Meaning the whois is not thread safe.
+                    if (this.tempWhois == null || tempWhois.Nick != msg.Parts[3])
+                    {
+                        this.tempWhois = new User();
+                        this.tempWhois.Nick = msg.Parts[3];
+                    }
+                    // :hyperion.gamergalaxy.net 317 dabbb dab 4405 1383796581 :seconds idle, signon time
+                    this.tempWhois.IdleTime = Int32.Parse(msg.Parts[4]);
+                    this.tempWhois.Attributes.Add(msg.Parts[5]);
+
+                    break;
+                case "401": // No such nick
+                case "318": // End of WHOIS results
+                                /*
+                                <- :irc.botsites.net 401 dab sdfasdfasdf :No such nick/channel
+                                <- :irc.botsites.net 318 dab sdfasdfasdf :End of /WHOIS list.
+                                */
+
+                    if (this.tempWhois != null && tempWhois.Nick != msg.Parts[3])
+                    {
+                        this.tempWhois = null;
+                    }
+
+                    WhoisMessage whomsg = new WhoisMessage(msg);
+                    whomsg.Who = this.tempWhois;
+
+                    if (this.OnWhoIs != null)
+                    {
+                        this.OnWhoIs(this, whomsg);
+                    }
+                    break;
+
+                #endregion
+                #region Connection Established (End of MOTD or No MOTD)
+                case "376":// End of MOTD. Meaning most spam is done. We can begin our adventure
+                case "422": // No MOTD, but still, no more spam.
+                    if (this.OnConnectionEstablished != null)
+                    {
+                        this.OnConnectionEstablished(this, msg);
+                    }
+                    break;
+                #endregion
+                #region MOTD
+                case "372":
+                case "375":
+                    if (this.OnMotd != null)
+                        this.OnMotd(this, msg);
+
+                    break;
+                #endregion
+                #region LIST
+                case "321":
+                    this.tempList = new List<ListEntry>();
+                    break;
+                case "322":
+                    ListEntry le = new ListEntry();
+                    le.Channel = msg.Parts[3];
+                    le.Users = Int32.Parse(msg.Parts[4]);
+                    le.Topic = msg.MessageLine;
+                    this.tempList.Add(le);
+                    break;
+                case "323":
+                    ListMessage lm = new ListMessage(msg);
+
+                    lm.Entries = this.tempList.ToArray();
+
+                    if (this.OnList != null)
+                    {
+                        this.OnList(this, lm);
+                    }
+                    break;
+                #endregion
+
             }
         }
 
@@ -743,6 +1076,8 @@ namespace dabbit.Base
             return res;
         }
 
+        private User tempWhois;
+        private List<ListEntry> tempList;
         private List<Channel> channels = new List<Channel>();
         private User me;
         private ServerType serverType = ServerType.Unknown;

@@ -15,9 +15,11 @@ namespace dabbit.Base
         public List<Channel> Channels { get; set; }
         public string Name { get; set; }
         public string Display { get { return this.Nick + "!" + this.Ident + "@" + this.Host; } }
-        public bool IrcOp { get; set; }
+        public string IrcOp { get; set; }
         public bool Identified { get; set; }
         public string Server { get; set; }
         public int IdleTime { get; set; }
+        public List<string> Attributes { get; set; }
+
     }
 }

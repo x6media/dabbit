@@ -35,6 +35,7 @@
   <ItemGroup>
     <!-- A reference to the entire .NET Framework is automatically included -->
     <Compile Include="EventArguments.cs" />
+    <Compile Include="EventEnums.cs" />
     <Compile Include="Events.cs" />
     <Compile Include="Message.cs" />
     <Compile Include="Mode.cs" />

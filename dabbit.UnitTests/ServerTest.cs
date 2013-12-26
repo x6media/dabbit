@@ -13,7 +13,7 @@ namespace dabbit.UnitTests
     public class ServerTest
     {
         [TestMethod]
-        public void TestTestSocket()
+        public void TestSocketTest()
         {
             string input = ":hyperion.gamergalaxy.net NOTICE AUTH :*** Looking up your hostname...\r\n";
 
@@ -70,12 +70,16 @@ namespace dabbit.UnitTests
 :john!hello@thishost.com JOIN :#dab
 :john2!hello@thishost.com JOIN :#dab
 :john2quit!hello@thishost.com JOIN :#dab
-:hyperion.gamergalaxy.net MODE #dab +bi-i dab!*@*
+:johnnick1!hello@thishost.com JOIN :#dab
+:kickme!hello@thishost.com JOIN :#dab
+:hyperion.gamergalaxy.net MODE #dab +bbbi-ib dab!*@* other!*@* third!*@* other!*@*
 :dab!dabitp@dab.biz MODE #dab +a john
 :dab!dabitp@dab.biz MODE lkjfsdlkf +az
 :dab!dabitp@dab.biz MODE lkjfsdlkf -z
 :john2!hello@thishost.com PART #dab
 :john2quit!hello@thishost.com QUIT :Bye bye!
+:johnnick1!hello@thishost.com NICK zzzbad
+:dab!dabitp@dab.biz KICK #dab kickme :Reason ok?
 :hyperion.gamergalaxy.net 999 lkjfsdlkf :END OF TEST DATA!
 ";
             MemoryStream read = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(input));
@@ -100,6 +104,7 @@ namespace dabbit.UnitTests
             bool onNewChannel = false;
 
             bool onQuitTest = false;
+            bool onNumeric333 = false;
 
             // Test properties
             ctx.Reader = read;
@@ -229,12 +234,21 @@ namespace dabbit.UnitTests
                 }
             };
 
+            ctx.Servers[0].OnNumeric[RawReplies.RplTopicSetBy_333] = delegate(object sender, Message e)
+            {
+                onNumeric333 = true;
+            };
+
             thrd = new Thread(ctx.Servers[0].Connection.ReadAsync);
 
             thrd.Start();
 
-
+#if DEBUG
+            Assert.IsTrue(serverParseTest.WaitOne(), "Parsing Timed out, possibly due to an error in the other thread. Please debug test");
+#else
             Assert.IsTrue(serverParseTest.WaitOne(3000), "Parsing Timed out, possibly due to an error in the other thread. Please debug test");
+#endif
+
             Thread.Sleep(900);
 
             Assert.AreEqual("lkjfsdlkf", ctx.Servers[0].Me.Nick, "Nicknames are not equal");
@@ -264,6 +278,7 @@ namespace dabbit.UnitTests
 
             Assert.IsTrue(onJoin, "OnJoin callback was not fired");
             Assert.IsTrue(onNewChannel, "OnNewChannelJoin was not called back");
+            Assert.IsTrue(onNumeric333, "Numeric 333 was not called! :(");
 
             Assert.IsTrue(onQuitTest, "Quit test did not pass. Did not quit with proper channels");
 
@@ -288,10 +303,18 @@ namespace dabbit.UnitTests
 
             Assert.AreEqual('a', ctx.Servers[0].Me.Modes[0][0], "The Me variable should have the a mode set");
 
+            Assert.AreEqual(2, tmp.Modes.Where(p => p.Character == 'b').Count(), "Only 2 +b modes should be set");
+
             Assert.IsNull(tmp.Modes.Where(p => p.Character == 'i').FirstOrDefault(), "Channel Mode should have been removed");
             Assert.IsNull(ctx.Servers[0].Me.Modes.Where(p => p == "z").FirstOrDefault(), "User Mode should have been removed");
 
             Assert.IsNull(tmp.Users.Where(p => p.Nick == "john2").FirstOrDefault(), "John should have been removed from the user list");
+
+
+            Assert.IsNull(tmp.Users.Where(p => p.Nick == "kickme").FirstOrDefault(), "John should have been removed from the user list");
+
+            Assert.IsNull(tmp.Users.Where(p => p.Nick == "johnnick1").FirstOrDefault(), "johnnick1 should have been removed and changed to kickme on nick");
+            Assert.IsNotNull(tmp.Users.Where(p => p.Nick == "zzzbad").FirstOrDefault(), "Nickname change was not updated");
         }
     }
 
