@@ -26,115 +26,42 @@ namespace dabbit.Win
     public partial class MainWindow : Window
     {
         //Connection cn = new Connection(new DabbitContext(), "localhost", 667, false);
-        Thread thrd;
-        WinDabbitContext ctx = new WinDabbitContext();
-        Server svr;
+
         public MainWindow()
         {
             InitializeComponent();
-
-            svr = new Server(ctx, new User() { Nick = "dabb", Ident = "dabitp", Name = "David" }, new Connection(ctx, new WinSocket("127.0.0.1", 6667, false)));
-
-            svr.OnRawMessage += svr_OnRawMessage;
-           //svr.Connection.Connect();
-            thrd = new Thread(svr.Connection.ReadAsync);
-
-            thrd.Start();
             
         }
 
         void svr_OnRawMessage(object sender, Message e)
         {
-            this.Dispatcher.Invoke(new Action(delegate()
-            {
-                output.Text += e.RawLine + Environment.NewLine;
-            }));
-            
+
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void dabbitLogo_Loaded(object sender, RoutedEventArgs e)
+        {
+            System.Reflection.Assembly thisExe;
+            thisExe = System.Reflection.Assembly.GetExecutingAssembly();
+            System.IO.Stream file = thisExe.GetManifestResourceStream("dabbit.Win.Assets.logo.png");
+
+            // ... Create a new BitmapImage.
+            BitmapImage b = new BitmapImage();
+            b.BeginInit();
+            b.StreamSource = file;
+            b.EndInit();
+
+            // ... Get Image reference from sender.
+            var image = sender as Image;
+            // ... Assign Source.
+            image.Source = b;
         }
     }
-    public class WinDabbitContext : IContext
-    {
-        public Connection CreateConnection(ConnectionType connectionType, ISocketWrapper socket)
-        {
-            return new DirectConnection(this, socket);
-        }
 
-        public List<Server> Servers { get; set; }
-        public Dictionary<string, string> Settings { get; set; }
 
-        /// <summary>
-        /// Create an empty blank TCP socket.
-        /// </summary>
-        /// <returns>Blank tcp socket capable of returning read/write streams and Async Connect.</returns>
-        public ISocketWrapper CreateSocket(string host, int port, bool secure)
-        {
-            return new WinSocket(host, port, secure);
-        }
-    }
-
-    public class DirectConnection : Connection
-    { 
-        public DirectConnection(IContext ctx, ISocketWrapper sckt)
-            : base(ctx, sckt)
-        {
-        }
-
-        public new void Write(string message)
-        {
-            Console.WriteLine(message);
-            base.Write(message);
-        }
-    }
-    public class WinSocket : ISocketWrapper
-    {
-        // Request these attributes in the Constructor
-        public string Host { get { return this.ip.Address.ToString(); } }
-        public int Port { get { return this.ip.Port; } }
-        public bool Secure { get { return this.secure; } }
-        private bool secure = false;
-
-        public bool Connected { get { return this.sock.Connected; } }
-
-        public Task ConnectAsync()
-        {
-            this.sock.Connect(ip);
-            this.streamRead = new StreamReader(this.sock.GetStream());
-            this.streamWriter = new StreamWriter(this.sock.GetStream());
-            this.streamWriter.WriteLine("HELLO");
-            this.streamWriter.Flush();
-            Console.WriteLine(this.streamRead.ReadLine());
-            
-            //this.streamWriter.AutoFlush = true;
-
-            return new Task(new Action(nope));
-        }
-
-        public void nope()
-        { }
-        
-        public void Disconnect()
-        {
-            this.sock.Close();
-            this.sock = new TcpClient();
-            this.sock.Connect(this.Host, this.Port);
-        }
-
-        public StreamReader Reader { get { return this.streamRead; } }
-
-        public StreamWriter Writer { get { return this.streamWriter; } }
-
-        public WinSocket(string host, int port, bool secure)
-        {
-            this.secure = secure;
-            this.sock = new TcpClient();
-            this.ip = new IPEndPoint(IPAddress.Parse(host), port);
-        }
-
-        private TcpClient sock;
-        private IPEndPoint ip;
-        private NetworkStream ns;
-        private StreamReader streamRead;
-        private StreamWriter streamWriter;
-    }
 
 }

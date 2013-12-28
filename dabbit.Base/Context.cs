@@ -23,25 +23,5 @@ namespace dabbit.Base
         ISocketWrapper CreateSocket(string host, int port, bool secure);
     }
 
-    // TODO: DELETE THIS!!
-    public class DabbitContext : IContext
-    {
-        public Connection CreateConnection(ConnectionType connectionType, ISocketWrapper socket)
-        {
-            return new Connection(this, socket);
-        }
-
-        public List<Server> Servers { get; set; }
-        public Dictionary<string, string> Settings { get; set; }
-
-        /// <summary>
-        /// Create an empty blank TCP socket.
-        /// </summary>
-        /// <returns>Blank tcp socket capable of returning read/write streams and Async Connect.</returns>
-        public ISocketWrapper CreateSocket(string host, int port, bool secure)
-        {
-            return (ISocketWrapper)new object();
-        }
-    }
 
 }

@@ -6,8 +6,43 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="15*" />
+            <RowDefinition Height="1*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="3*" />
+            <ColumnDefinition Width="15*" />
+            <ColumnDefinition Width="3*" />
+        </Grid.ColumnDefinitions>
 
-    <Grid Background="{StaticResource ApplicationPageBackgroundThemeBrush}">
+        <!-- Left -->
+        <Grid Grid.Column="0" Grid.Row="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="25*" />
+                <RowDefinition Height="150*" />
+                <RowDefinition Height="50" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="3*" />
+                <ColumnDefinition Width="3*" />
+                <ColumnDefinition Width="3*" />
+            </Grid.ColumnDefinitions>
+            <Image Source="http://dabb.it/images/logo.png" Grid.ColumnSpan="3" />
 
+            <ListBox Grid.ColumnSpan="3" />
+
+            <Button Grid.Row="2" Grid.Column="2" />
+            <Button Grid.Row="2" Grid.Column="1" />
+            <Button Grid.Row="2" Content="Disconnect" Grid.Column="0" />
+        </Grid>
+
+        <!-- Center -->
+        <TextBox Grid.Row="0" Grid.Column="1" Text="Hello World" />
+        <!-- Right -->
+        <ListBox Grid.Row="0" Grid.Column="2" />
+        <!-- Bottom -->
+        <TextBox Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Text="Hello Again there everyone"/>
     </Grid>
 </Page>
