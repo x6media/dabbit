@@ -13,6 +13,11 @@ namespace dabbit.Win
 {
     public class WinContext : IContext
     {
+        public WinContext()
+        {
+            this.Servers = new List<Server>();
+            this.Settings = new Dictionary<string, string>();
+        }
         public Connection CreateConnection(ConnectionType connectionType, ISocketWrapper socket)
         {
             if (connectionType == ConnectionType.Direct)
@@ -52,16 +57,15 @@ namespace dabbit.Win
     public class WinSocket : ISocketWrapper
     {
         // Request these attributes in the Constructor
-        public string Host { get { return this.ip.Address.ToString(); } }
-        public int Port { get { return this.ip.Port; } }
+        public string Host { get { return this.host; } }
+        public int Port { get { return this.port; } }
         public bool Secure { get { return this.secure; } }
-        private bool secure = false;
 
         public bool Connected { get { return this.sock.Connected; } }
 
         public Task ConnectAsync()
         {
-            this.sock.Connect(ip);
+            this.sock.Connect(this.Host, this.Port);
             this.streamRead = new StreamReader(this.sock.GetStream());
             this.streamWriter = new StreamWriter(this.sock.GetStream());
             this.streamWriter.WriteLine("HELLO");
@@ -91,11 +95,15 @@ namespace dabbit.Win
         {
             this.secure = secure;
             this.sock = new TcpClient();
-            this.ip = new IPEndPoint(IPAddress.Parse(host), port);
+            this.host = host;
+            this.port = port;
         }
 
         private TcpClient sock;
-        private IPEndPoint ip;
+        private string host;
+        private int port;
+        private bool secure = false;
+
         private NetworkStream ns;
         private StreamReader streamRead;
         private StreamWriter streamWriter;

@@ -8,7 +8,6 @@
              xmlns:local="clr-namespace:dabbit.Win"
              DataContext="this">
     <StackPanel x:Name="treeviewStack">
-        <TextBlock Text="CheckBox 1"/>
         <local:ServerNode x:Name="other" />
 
     </StackPanel>

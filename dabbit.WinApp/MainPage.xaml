@@ -5,44 +5,73 @@
     xmlns:local="using:dabbit.WinApp"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:winrt="using:WinRTXamlToolkit.Controls"
+    RequestedTheme="Dark"
     mc:Ignorable="d">
-    <Grid>
+
+    <Grid Background="{StaticResource ApplicationPageBackgroundThemeBrush}">
         <Grid.RowDefinitions>
-            <RowDefinition Height="15*" />
-            <RowDefinition Height="1*" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="3*" />
+            <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="15*" />
-            <ColumnDefinition Width="3*" />
+            <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
 
+
         <!-- Left -->
-        <Grid Grid.Column="0" Grid.Row="0">
+        <Grid Grid.Column="0" Grid.Row="0" >
             <Grid.RowDefinitions>
-                <RowDefinition Height="25*" />
-                <RowDefinition Height="150*" />
-                <RowDefinition Height="50" />
+                <RowDefinition Height="2*" />
+                <RowDefinition Height="17*" />
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="3*" />
                 <ColumnDefinition Width="3*" />
                 <ColumnDefinition Width="3*" />
             </Grid.ColumnDefinitions>
-            <Image Source="http://dabb.it/images/logo.png" Grid.ColumnSpan="3" />
+            <Image Source="Assets/dabbit.png" Grid.ColumnSpan="3" MaxWidth="150" Margin="0,0,0,5" />
 
-            <ListBox Grid.ColumnSpan="3" />
-
-            <Button Grid.Row="2" Grid.Column="2" />
-            <Button Grid.Row="2" Grid.Column="1" />
-            <Button Grid.Row="2" Content="Disconnect" Grid.Column="0" />
+            <winrt:TreeView Grid.ColumnSpan="3" Grid.Row="1" RequestedTheme="Dark" Background="Black" BorderThickness="0" Margin="0,0,0,-41">
+                <winrt:TreeViewItem Header="GGXY IRC" IsExpanded="True" RequestedTheme="Dark" BorderThickness="0">
+                    <winrt:TreeViewItem Header="#channel" RequestedTheme="Dark" BorderThickness="0"></winrt:TreeViewItem>
+                </winrt:TreeViewItem>
+            </winrt:TreeView>
         </Grid>
-
+        
         <!-- Center -->
-        <TextBox Grid.Row="0" Grid.Column="1" Text="Hello World" />
+        <Grid Name="Views" Grid.Row="0" Grid.Column="1" Margin="0,0,0,47" Grid.RowSpan="2"  Height="Auto">
+            <WebView Name="brows" Height="Auto" />
+        </Grid>
+        
         <!-- Right -->
-        <ListBox Grid.Row="0" Grid.Column="2" />
+        <StackPanel Grid.Row="0" Grid.Column="2" Margin="0,0,0,47" Grid.RowSpan="2" >
+            <TextBlock Text="Users 0" Grid.Column="2" Grid.Row="0" FontSize="25" />
+            <ListBox BorderThickness="0">
+                <TextBlock Text="TextBlock" />
+            </ListBox>
+        </StackPanel>
         <!-- Bottom -->
-        <TextBox Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Text="Hello Again there everyone"/>
+
+        <TextBox Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Text="Hello Again there everyone" BorderThickness="0" Height="24" Margin="0,42,0,10"/>
+        <AppBar Name="appBarBottom" VerticalAlignment="Bottom" Grid.Column="0" Grid.ColumnSpan="3" Grid.RowSpan="2">
+            <Grid>
+                <Button AutomationProperties.Name="Add Server" Name="AddServer" HorizontalAlignment="Left" Style="{StaticResource AddServerAppBarButtonStyle}" Margin="0, 0, 0, 0" />
+                <Button AutomationProperties.Name="Close Active Windows" Name="CloseActiveWindows" HorizontalAlignment="Left" Style="{StaticResource CloseActiveWindowsAppBarButtonStyle}" Margin="105, 0, 0, 0" />
+
+                <Button AutomationProperties.Name="Edit Server" Name="EditServer" HorizontalAlignment="Left" Style="{StaticResource EditServerAppBarButtonStyle}" Margin="210, 0, 0, 0" />
+                <Button AutomationProperties.Name="Call Me" Name="CallMe" HorizontalAlignment="Left" Style="{StaticResource CallMeAppBarButtonStyle}" Margin="315, 0, 0, 0" />
+                <Button AutomationProperties.Name="Pig" Name="Pig" HorizontalAlignment="Left" Style="{StaticResource PigAppBarButtonStyle}" Margin="420, 0, 0, 0" />
+                <Button AutomationProperties.Name="Call a Taxi" Name="CallTaxi" HorizontalAlignment="Left" Style="{StaticResource CallTaxiAppBarButtonStyle}" Margin="520, 0, 0, 0" />
+                <Button AutomationProperties.Name="Do not smoke" Name="DoNotSmoke" HorizontalAlignment="Left" Style="{StaticResource DoNotSmokeAppBarButtonStyle}" Margin="640, 0, 0, 0" />
+                <Button AutomationProperties.Name="Kiss Me" Name="KissMe" HorizontalAlignment="Left" Style="{StaticResource KissMeAppBarButtonStyle}" Margin="745, 0, 0, 0" />
+                <Button AutomationProperties.Name="Network Signal" Name="Network" HorizontalAlignment="Left" Style="{StaticResource NetworkAppBarButtonStyle}" Margin="850, 0, 0, 0" />
+
+
+                <Button AutomationProperties.Name="Settings" Name="Settings" HorizontalAlignment="Right" Style="{StaticResource SettingsAppBarButtonStyle}" Margin="0, 0, 0, 0"  />
+            </Grid>
+        </AppBar>
     </Grid>
 </Page>

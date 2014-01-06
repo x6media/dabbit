@@ -2,18 +2,19 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:dabbit.Win"
-        Title="dabbit" Height="350" Width="525">
+        Title="dabbit" Height="446" Width="667.4">
     <Grid x:Name="windowGrid">
+
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="3*" />
+            <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="15*" />
             <ColumnDefinition Width="Auto" />
-            <ColumnDefinition Width="3*" />
+            <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
 
         <!-- Left -->
@@ -23,9 +24,11 @@
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
-            <Image x:Name="dabbitLogo" Source="Assets/logo.png" Grid.Row="0" Loaded="dabbitLogo_Loaded"/>
+            <Image x:Name="dabbitLogo" Source="Assets/logo.png" Grid.Row="0" Loaded="dabbitLogo_Loaded" MaxWidth="150" />
 
-            <local:Treeview Grid.Row="1"></local:Treeview>
+            <TreeView Grid.Row="1" Name="treeViewServerList">
+
+            </TreeView>
         </Grid>
 
         <GridSplitter 
@@ -40,8 +43,9 @@
                 Background="#FFBCBCBC"/>
 
         <!-- Center -->
-        <WebBrowser Grid.Row="0" Grid.Column="2" />
-
+        <DockPanel Name="Views" Grid.Row="0" Grid.Column="2" Height="Auto">
+            <WebBrowser Name="brows" Height="Auto" DockPanel.Dock="Bottom" />
+        </DockPanel>
 
         <GridSplitter 
                 ResizeDirection="Columns"
@@ -54,7 +58,12 @@
                 Margin="0"
                 Background="#FFBCBCBC"/>
         <!-- Right -->
-        <ListBox Grid.Row="0" Grid.Column="4" />
+        <StackPanel Grid.Row="0" Grid.Column="4" >
+            <TextBlock Text="Users 0" FontSize="15" />
+            <ListBox BorderThickness="0">
+                <TextBlock Text="TextBlock" />
+            </ListBox>
+        </StackPanel>
         <!-- Bottom -->
         <TextBox Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="5" Text="Hello Again there everyone"/>
     </Grid>

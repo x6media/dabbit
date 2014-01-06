@@ -12,6 +12,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
+
     <!-- Non-brush values that vary across themes -->
 
     <ResourceDictionary.ThemeDictionaries>
@@ -399,7 +400,66 @@
         </Setter>
     </Style>
 
-    <!-- 
+    <Style x:Key="AddServerAppBarButtonStyle" TargetType="ButtonBase" BasedOn="{StaticResource AppBarButtonStyle}">
+        <Setter Property="AutomationProperties.AutomationId" Value="AddServerAppBarButtonStyle"/>
+        <Setter Property="AutomationProperties.Name" Value="Add Server"/>
+        <Setter Property="Content" Value="&#xE109;" />
+    </Style>
+
+    <Style x:Key="CloseActiveWindowsAppBarButtonStyle" TargetType="ButtonBase" BasedOn="{StaticResource AppBarButtonStyle}">
+        <Setter Property="AutomationProperties.AutomationId" Value="CloseActiveWindowsAppBarButtonStyle"/>
+        <Setter Property="AutomationProperties.Name" Value="Close Active Windows"/>
+        <Setter Property="Content" Value="&#xE108;" />
+    </Style>
+
+    <Style x:Key="EditServerAppBarButtonStyle" TargetType="ButtonBase" BasedOn="{StaticResource AppBarButtonStyle}">
+        <Setter Property="AutomationProperties.AutomationId" Value="EditServerAppBarButtonStyle"/>
+        <Setter Property="AutomationProperties.Name" Value="Eyes"/>
+        <Setter Property="Content" Value="&#xE104;" />
+    </Style>
+
+    <Style x:Key="CallMeAppBarButtonStyle" TargetType="ButtonBase" BasedOn="{StaticResource AppBarButtonStyle}">
+        <Setter Property="AutomationProperties.AutomationId" Value="CallMeAppBarButtonStyle"/>
+        <Setter Property="AutomationProperties.Name" Value="CallMe"/>
+        <Setter Property="Content" Value="&#x1F4DE;" />
+    </Style>
+
+    <Style x:Key="PigAppBarButtonStyle" TargetType="ButtonBase" BasedOn="{StaticResource AppBarButtonStyle}">
+        <Setter Property="AutomationProperties.AutomationId" Value="PigAppBarButtonStyle"/>
+        <Setter Property="AutomationProperties.Name" Value="Pig"/>
+        <Setter Property="Content" Value="&#x1F437;" />
+    </Style>
+
+    <Style x:Key="CallTaxiAppBarButtonStyle" TargetType="ButtonBase" BasedOn="{StaticResource AppBarButtonStyle}">
+        <Setter Property="AutomationProperties.AutomationId" Value="CallTaxiAppBarButtonStyle"/>
+        <Setter Property="AutomationProperties.Name" Value="Taxi"/>
+        <Setter Property="Content" Value="&#x1F696;" />
+    </Style>
+
+    <Style x:Key="DoNotSmokeAppBarButtonStyle" TargetType="ButtonBase" BasedOn="{StaticResource AppBarButtonStyle}">
+        <Setter Property="AutomationProperties.AutomationId" Value="DoNotSmokeAppBarButtonStyle"/>
+        <Setter Property="AutomationProperties.Name" Value="DoNotSmoke"/>
+        <Setter Property="Content" Value="&#x1F6AD;" />
+    </Style>
+
+    <Style x:Key="KissMeAppBarButtonStyle" TargetType="ButtonBase" BasedOn="{StaticResource AppBarButtonStyle}">
+        <Setter Property="AutomationProperties.AutomationId" Value="KissMeAppBarButtonStyle"/>
+        <Setter Property="AutomationProperties.Name" Value="Kiss Me"/>
+        <Setter Property="Content" Value="&#x1F617;" />
+    </Style>
+
+    <Style x:Key="NetworkAppBarButtonStyle" TargetType="ButtonBase" BasedOn="{StaticResource AppBarButtonStyle}">
+        <Setter Property="AutomationProperties.AutomationId" Value="NetworkAppBarButtonStyle"/>
+        <Setter Property="AutomationProperties.Name" Value="Network Signal"/>
+        <Setter Property="Content" Value="&#xE1E8;" />
+    </Style>
+
+    <Style x:Key="SettingsAppBarButtonStyle" TargetType="ButtonBase" BasedOn="{StaticResource AppBarButtonStyle}">
+        <Setter Property="AutomationProperties.AutomationId" Value="SettingsAppBarButtonStyle"/>
+        <Setter Property="AutomationProperties.Name" Value="Settings"/>
+        <Setter Property="Content" Value="&#xE115;" /> 
+    </Style>
+    <!-- &#x1F528;
         Standard AppBarButton Styles for use with Button and ToggleButton
     
         An AppBarButton Style is provided for each of the glyphs in the Segoe UI Symbol font.  

@@ -24,11 +24,21 @@ namespace dabbit.Win
     {
 
         public Server server;
+        public string ServerName
+        {
+            get
+            {
+                if (this.server == null)
+                    return "GGXY IRC";
 
+                return server.Name ?? "GGXY IRC";
+            }
+        }
         
         public ServerNode()
         {
             InitializeComponent();
+            chan_dab.ChannelName = "#dab";
         }
         
         public event PropertyChangedEventHandler PropertyChanged;

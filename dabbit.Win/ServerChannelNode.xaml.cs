@@ -12,17 +12,30 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.ComponentModel;
 
 namespace dabbit.Win
 {
+    
     /// <summary>
     /// Interaction logic for ServerChannelNode.xaml
     /// </summary>
-    public partial class ServerChannelNode : UserControl
+    public partial class ServerChannelNode : UserControl, INotifyPropertyChanged
     {
+        public string ChannelName { get { return this.channelName; } set { this.RaisePropertyChanged("ChannelName"); this.channelName = value; } }
+        private string channelName = "#channel";
+
         public ServerChannelNode()
         {
             InitializeComponent();
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void RaisePropertyChanged(string propertyName)
+        {
+            if (PropertyChanged != null)
+                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
         }
         private System.Diagnostics.Stopwatch stopwtch = new System.Diagnostics.Stopwatch();
         private void TextBlock_MouseRightButtonUp(object sender, MouseButtonEventArgs e)

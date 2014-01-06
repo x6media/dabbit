@@ -13,6 +13,7 @@ using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 
 using Windows.Networking.Sockets;
+using System.Reflection;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234238
 using dabbit.Base;
@@ -27,6 +28,15 @@ namespace dabbit.WinApp
         public MainPage()
         {
             this.InitializeComponent();
+
+            Stream awayStream = typeof(MainPage).GetTypeInfo().Assembly.GetManifestResourceStream("dabbit.WinApp.Assets.HTML.ChatPage.html");
+
+            using (StreamReader reader = new StreamReader(awayStream))
+            {
+                this.readPage = reader.ReadToEnd();
+            }
+
+            brows.NavigateToString(this.readPage);
         }
 
         /// <summary>
@@ -50,5 +60,12 @@ namespace dabbit.WinApp
             //con.Writer = new StreamWriter(ss.InputStream.AsStreamForRead());
 
         }
+
+        private void appBarBottom_Opened(object sender, object e)
+        {
+
+        }
+
+        private string readPage = String.Empty;
     }
 }
