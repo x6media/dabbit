@@ -44,16 +44,6 @@ namespace dabbit.Base
 
         public Connection(IContext ctx, ISocketWrapper socket)
         {
-            /*
-            if (String.IsNullOrEmpty(host))
-            {
-                throw new ArgumentNullException("host");
-            }
-
-            if (port <= 0 || port > 65000)
-            {
-                throw new InvalidPortException(port);
-            }*/
             if (ctx == null)
             {
                 throw new ArgumentNullException("ctx");
@@ -75,6 +65,14 @@ namespace dabbit.Base
 
         public void Disconnect()
         {
+            this.Disconnect("QUIT :dabbit IRC Client. Get it today! http://dabb.it");
+            this.socketWrapper.Disconnect();
+
+            this.socketWrapper = this.ctx.CreateSocket(this.socketWrapper.Host, this.socketWrapper.Port, this.socketWrapper.Secure);
+        }
+        public void Disconnect(string quitmsg)
+        {
+            this.Write(quitmsg);
             this.socketWrapper.Disconnect();
 
             this.socketWrapper = this.ctx.CreateSocket(this.socketWrapper.Host, this.socketWrapper.Port, this.socketWrapper.Secure);
@@ -169,7 +167,15 @@ namespace dabbit.Base
             Message msg = new Message();
             
             msg.Timestamp = DateTime.Now;
-            msg.RawLine = this.socketWrapper.Reader.ReadLine();
+            try
+            {
+                msg.RawLine = this.socketWrapper.Reader.ReadLine().Trim();
+            }
+            catch(Exception)
+            {
+                return null;
+            }
+            
 
             if (String.IsNullOrEmpty(msg.RawLine))
             {
@@ -179,6 +185,8 @@ namespace dabbit.Base
             string[] messages = msg.RawLine.Split(' ');
 
             msg.Parts = messages;
+            if (messages.Count() == 0)
+                return null;
 
             if (messages[0] == "PING" || messages[0] == "ERROR")
             {
@@ -193,6 +201,9 @@ namespace dabbit.Base
             bool found = false;
             for (int i = 1; i < messages.Count(); i++)
             {
+                if (String.IsNullOrEmpty(messages[i]))
+                    continue;
+
                 if (messages[i][0] == ':')
                 {
                     found = true;

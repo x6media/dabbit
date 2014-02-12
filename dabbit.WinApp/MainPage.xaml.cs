@@ -37,6 +37,7 @@ namespace dabbit.WinApp
             }
 
             brows.NavigateToString(this.readPage);
+            browsb.NavigateToString(this.readPage);
         }
 
         /// <summary>

@@ -5,9 +5,11 @@ using System.Windows.Media.Imaging;
 using dabbit.Base;
 using System.IO;
 using System.Reflection;
+using System.Runtime.InteropServices;
 
 namespace dabbit.Win
 {
+
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
@@ -15,84 +17,23 @@ namespace dabbit.Win
     {
 
 
-
-        enum IconTypes
-        {
-            None,
-            Online,
-            Offline,
-            Away
-        }
-        //Connection cn = new Connection(new DabbitContext(), "localhost", 667, false);
-        private TreeViewItem CreateTreeViewItem(string header, IconTypes icon)
-        {
-
-            TreeViewItem child = new TreeViewItem();
-            StackPanel pan = new StackPanel();
-
-            if (icon != IconTypes.None)
-            {
-
-                pan.Orientation = Orientation.Horizontal;
-
-                Image image = new Image();
-                image.Height = 16;
-
-                switch (icon)
-                {
-                    case IconTypes.Offline:
-                        image.Source = offlinePng.Frames[0];
-                        break;
-                    case IconTypes.Online:
-                        image.Source = onlinePng.Frames[0];
-                        break;
-                    case IconTypes.Away:
-                        image.Source = awayPng.Frames[0];
-                        break;
-                }
-                
-                pan.Children.Add(image);
-            }
-
-            pan.Children.Add(new TextBlock(new Run("  " + header)));
-            child.Header = pan;
-            return child;
-        }
-
         public MainWindow()
         {
             InitializeComponent();
 
-            // Load Images into a cache.
-            Stream awayStream = Assembly.GetEntryAssembly().GetManifestResourceStream("dabbit.Win.Assets.orb-away.png");
-            this.awayPng = new PngBitmapDecoder(awayStream, BitmapCreateOptions.None, BitmapCacheOption.OnLoad);
+            this.ctx = new WinContext(CenterGrid);
 
-            awayStream = Assembly.GetEntryAssembly().GetManifestResourceStream("dabbit.Win.Assets.orb-offline.png");
-            this.offlinePng = new PngBitmapDecoder(awayStream, BitmapCreateOptions.None, BitmapCacheOption.OnLoad);
-
-            awayStream = Assembly.GetEntryAssembly().GetManifestResourceStream("dabbit.Win.Assets.orb-online.png");
-            this.onlinePng = new PngBitmapDecoder(awayStream, BitmapCreateOptions.None, BitmapCacheOption.OnLoad);
-
-            TreeViewItem tvi = CreateTreeViewItem("Settings", IconTypes.None);
-
-
-            Stream docStream = Assembly.GetEntryAssembly().GetManifestResourceStream("dabbit.Win.Assets.HTML.ChatPage.html");
-            brows.NavigateToStream(docStream);
-
+            TreeViewItem tvi = TreeviewHelper.CreateTreeViewItem("Settings", TreeviewHelper.IconTypes.None);
 
             treeViewServerList.Items.Add(tvi);
             MultiSelect.AllowMultiSelection(treeViewServerList);
 
             //ctx.Servers.Add(new Server(ctx, new User() { Nick = "dabbit", Ident = "dabitp", Name = "David" }, new Connection(ctx, new WinSocket("localhost", 6667, false))));
             //ctx.Servers[0].OnRawMessage += MainWindow_OnRawMessage;
-        }
 
-        void MainWindow_OnRawMessage(object sender, Message e)
-        {
             
         }
-
-
+        
         private void dabbitLogo_Loaded(object sender, RoutedEventArgs e)
         {
             System.Reflection.Assembly thisExe;
@@ -113,11 +54,46 @@ namespace dabbit.Win
 
 
 
-        PngBitmapDecoder awayPng;
-        PngBitmapDecoder offlinePng;
-        PngBitmapDecoder onlinePng;
 
-        WinContext ctx = new WinContext();
+        WinContext ctx;
+        
+
+        private void TextBox_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if (e.Key == System.Windows.Input.Key.Enter)
+            {
+                //brows.InvokeScript("addLine", new object[] { "notice", "& dab", "#FF0000", textInput.Text });
+                string tmp = textInput.Text;
+                if (tmp[0] == '/')
+                {
+                    string[] parts = tmp.Split(' ');
+                    if (parts[0] == "/server")
+                    {
+                        User temp = new User() { Nick = "dabbit", Ident = "dabitp", Name = "David"};
+
+
+
+                        this.ctx.AddServer(this.ctx, temp, this.ctx.CreateConnection(ConnectionType.Direct, new WinSocket(parts[1], 6667, false)));
+                    }
+                    else
+                    {
+                        this.ctx.SendToActivewindow(textInput.Text);
+                    }
+                }
+                else
+                {
+                    this.ctx.SendToActivewindow(textInput.Text);
+                }
+                textInput.Text = "";
+            }
+
+
+        }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            this.ctx.FormClosing();
+        }
     }
 
 

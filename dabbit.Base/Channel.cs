@@ -8,11 +8,18 @@ namespace dabbit.Base
 {
     public class Channel
     {
+        public Channel(Server svr)
+        {
+            this.ServerOf = svr;
+        }
+
         public string Name { get; internal set; }
         public Topic Topic { get; internal set; }
         public List<Mode> Modes { get; internal set; }
         public List<User> Users { get; internal set; }
         public string Display { get; internal set; }
+
+        public Server ServerOf { get; internal set; }
 
         public Channel DeepClone()
         {
@@ -26,8 +33,7 @@ namespace dabbit.Base
         {
             get
             {
-                return !String.IsNullOrEmpty(Name) && Topic != null && !String.IsNullOrEmpty(Topic.Display) &&
-                    Modes != null && Users.Count() != 0 && !String.IsNullOrEmpty(Display);
+                return !String.IsNullOrEmpty(Name) && Modes != null && Users.Count() != 0 && !String.IsNullOrEmpty(Display);
             }
         }
     }

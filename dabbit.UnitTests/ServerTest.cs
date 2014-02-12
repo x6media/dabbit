@@ -345,6 +345,11 @@ namespace dabbit.UnitTests
         {
             return new StringTestSocket(this.Reader, this.Writer);
         }
+
+        public Channel CreateChannel(Server svr)
+        {
+            return new Channel(svr);
+        }
     }
 
     public class DirectConnection : Connection

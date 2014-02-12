@@ -72,9 +72,6 @@ namespace dabbit.Base
             this.connection.Write("USER " + this.Me.Ident + " * * :" + this.Me.Name);
         }
 
-
-
-
 #region Events
         public event IrcEventHandler OnConnectionEstablished;
         public event IrcEventHandler OnRawMessage; //
@@ -113,6 +110,8 @@ namespace dabbit.Base
 
         public event CtcpEventHandler OnCtcpRequest;
         public event CtcpEventHandler OnCtcpReply;
+
+        public event IrcEventHandler OnUnhandledEvent;
 
         public Dictionary<RawReplies, IrcEventHandler> OnNumeric;
 
@@ -302,7 +301,7 @@ namespace dabbit.Base
 
                         if (value == null)
                         {
-                            value = new Channel();
+                            value = this.ctx.CreateChannel(this);
                             value.Modes = new List<Mode>();
                             value.Users = new List<User>();
                             value.Topic = new Topic();
@@ -405,6 +404,9 @@ namespace dabbit.Base
 
                     for (int i = 5; i < msg.Parts.Count(); i++)
                     {
+                        if (String.IsNullOrEmpty(msg.Parts[i]))
+                            continue;
+
                         User tempuser = new User();
                         tempuser.Modes = new List<string>();
 
@@ -486,7 +488,10 @@ namespace dabbit.Base
                         }
 
                     }
-                    this.OnQuit(this, new QuitMessage(msg) { Channels = channels.ToArray() });
+                    if (this.OnQuit != null)
+                    {
+                        this.OnQuit(this, new QuitMessage(msg) { Channels = channels.ToArray() });
+                    }
                     
                     break;
                 #endregion
@@ -539,11 +544,11 @@ namespace dabbit.Base
 
                     string modesstring = msg.Parts[3];
                     int paramsindex = 4;
-                    bool adding = false;
+                    bool adding = true;
 
                     string prefixz = this.Attributes["PREFIX_PREFIXES"];
-
-                    for (int i = 0; i < modesstring.Length; i++)
+                    int start = modesstring[0] == ':' ? 1 : 0;
+                    for (int i = start; i < modesstring.Length; i++)
                     {
                         if (modesstring[i] == '+')
                         {
@@ -558,7 +563,7 @@ namespace dabbit.Base
 
 
                         Mode mode = new Mode();
-                        mode.Display = mode.Character;
+                        mode.Display = mode.Character = modesstring[i];
                         mode.ModificationType = adding ? ModeModificationType.Adding : ModeModificationType.Removing;
 
                         if (this.Attributes["CHANMODES_A"].Contains(modesstring[i].ToString()) ||
@@ -592,14 +597,15 @@ namespace dabbit.Base
                                     Where(m => m == mode.Character.ToString()).First());
 
 
-                                this.Channels[msg.Parts[2]].Users[userid].Modes.Sort(delegate(string s1, string s2)
-                                {
-                                    return prefixz.IndexOf(s1[0]).CompareTo(prefixz.IndexOf(s2[0]));
-                                });
                             }
                             else
                             {
                                 this.Channels[msg.Parts[2]].Users[userid].Modes.Add(mode.Character.ToString());
+
+                                this.Channels[msg.Parts[2]].Users[userid].Modes.Sort(delegate(string s1, string s2)
+                                {
+                                    return prefixz.IndexOf(s1[0]).CompareTo(prefixz.IndexOf(s2[0]));
+                                });
                             }
 
                             this.Channels[msg.Parts[2]].Users.Sort(sortuser);
@@ -917,7 +923,11 @@ namespace dabbit.Base
 
                     for (int i = 4; i < msg.Parts.Count(); i++)
                     {
-                        this.tempWhois.Channels.Add(new Channel() { Name = msg.Parts[i], Display = msg.Parts[i] });
+                        Channel chan319 = this.ctx.CreateChannel(this);
+                        chan319.Name = msg.Parts[i];
+                        chan319.Display = msg.Parts[i];
+
+                        this.tempWhois.Channels.Add(chan319);
                     }
 
                     break;
@@ -1043,6 +1053,12 @@ namespace dabbit.Base
                     }
                     break;
                 #endregion
+                default:
+                    if (this.OnUnhandledEvent != null)
+                    {
+                        this.OnUnhandledEvent(this, msg);
+                    }
+                    break;
 
             }
         }
@@ -1083,7 +1099,7 @@ namespace dabbit.Base
         private ServerType serverType = ServerType.Unknown;
         private Dictionary<string, string> attributes = new Dictionary<string, string>();
         private Connection connection;
-        private IContext ctx;
+        protected IContext ctx;
         private bool multiModes = false;
         private bool hostInNames = false;
     }

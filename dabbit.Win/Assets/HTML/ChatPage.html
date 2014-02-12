@@ -1,5 +1,4 @@
 ﻿<!DOCTYPE html>
-
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="utf-8" />
@@ -13,10 +12,12 @@
             width: 100%;
             height: 100%;
         }
-        .chatRightDivide 
-        {
-            min-width: 100px;
+        .chatRightDivide {
             border-right: 2px solid #444444;
+            text-align: right;
+            margin-right: 3px;
+            width: auto;
+            max-width: 200px;
         }
 
         .chatTopDivide td {
@@ -38,113 +39,144 @@
         table tr td {
             vertical-align: top;
         }
+
+        .dim 
+        {
+            height: 100%;
+            width: 100%;
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 1 !important;
+            background-color: black;
+            filter: alpha(opacity=75); /* internet explorer */
+            -khtml-opacity: 0.75; /* khtml, old safari */
+            -moz-opacity: 0.75; /* mozilla, netscape */
+            opacity: 0.75; /* fx, safari, opera */
+        }
     </style>
+    
+    <script language="javascript">
+        var lastTime = new Date(1900, 1, 1);
+        var lastFrom = "";
+
+        function toggleOverlay(bShowOverlay)
+        {
+            if (bShowOverlay == null)
+            {
+                document.getElementById("overlaydiv").style.visibility = (document.getElementById("overlaydiv").style.visibility == "visible" ? "hidden" : "visible");
+
+                if (document.getElementById("overlaydiv").style.visibility == "visible")
+                    window.external.OverlayVisible();
+                else
+                    window.external.OverlayHide();
+
+                return;
+            }
+
+            if (bShowOverlay)
+            {
+                document.getElementById("overlaydiv").style.visibility = "visible";
+                window.external.OverlayVisible();
+            }
+            else
+            {
+                document.getElementById("overlaydiv").style.visibility = "hidden";
+                window.external.OverlayHide();
+            }
+
+        }
+
+        function pad2(number)
+        {
+            return (number < 10 ? '0' : '') + number;
+        }
+        
+        function addLine(sType, sWho, sWhoColor, sLine)
+        {
+            if (lastFrom == sWho)
+            {
+                sWho = "&nbsp;";
+            }
+            else
+            {
+                lastFrom = sWho;
+            }
+            
+            var date = new Date();
+
+            if (lastTime.getMinutes() != date.getMinutes() || lastTime.getHours() != date.getHours())
+            {
+                lastTime = date;
+                var table = document.getElementById("tblChat");
+                var row = table.insertRow(-1);
+                //row.setAttribute("class", "chatTopDivide");
+                row.className = "chatTopDivide";
+
+                var cellTimeStamp = row.insertCell(0);
+                //cellTimeStamp.setAttribute("class", sType);
+
+
+                var cellNickname = row.insertCell(1);
+                // cellNickname.setAttribute("class", sType + " chatRightDivide");
+                cellNickname.className += " chatRightDivide";
+                cellNickname.style.color = sWhoColor;
+
+                var cellMessage = row.insertCell(2);
+                //cellMessage.setAttribute("class", sType);
+                
+
+                cellTimeStamp.innerHTML = date.getHours() + ":" + pad2(date.getMinutes()) + ":" + pad2(date.getSeconds());
+                cellNickname.innerHTML = "&nbsp;";
+                cellMessage.innerHTML = "&nbsp;";
+            }
+
+            var table = document.getElementById("tblChat");
+            var row = table.insertRow(-1);
+            //row.setAttribute("class", "chatTopDivide");
+            row.className = "chatTopDivide";
+
+            var cellTimeStamp = row.insertCell(0);
+            //cellTimeStamp.setAttribute("class", sType);
+            cellTimeStamp.className = sType;
+            
+
+            var cellNickname = row.insertCell(1);
+           // cellNickname.setAttribute("class", sType + " chatRightDivide");
+            cellNickname.className = sType;
+            cellNickname.className += " chatRightDivide";
+            cellNickname.style.color = sWhoColor;
+
+            var cellMessage = row.insertCell(2);
+            //cellMessage.setAttribute("class", sType);
+            cellMessage.className = sType;
+
+            cellTimeStamp.innerHTML = "&nbsp;";
+            cellNickname.innerHTML = sWho + "&nbsp;&nbsp;";
+            cellMessage.innerHTML = "&nbsp;&nbsp;" + sLine;
+
+
+        }
+
+        function addInfo(sWho, sWhoColor, sLine)
+        {
+            var dateObj = new Date();
+            var sTime = "";
+            
+
+        }
+    </script>
 </head>
-<body>
-    <table border="0" cellspacing="0" cellpadding="0">
+<body onload="addLine('notice', '& dab', '#ff0000', 'Omg like message is here ok');">
+    <div id="overlaydiv" class="dim" onclick="toggleOverlay(false);">&nbsp;</div>
+    <table id="tblChat" border="0" cellspacing="0" cellpadding="0">
         <tr style="max-height: 100%; display:block;">
-            <td style="max-width: 400px;"></td>
+            <td>&nbsp;</td>
             <td class="chatRightDivide">&nbsp;</td>
             <td>
                 <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
                 <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
             </td>
-        </tr>
-
-        <tr>
-            <td>10:43</td>
-            <td class="chatRightDivide">&nbsp;</td>
-            <td></td>
-        </tr>
-
-        <tr class="chatTopDivide">
-            <td>&nbsp;</td>
-            <td class="chatRightDivide nickMenu" style="color: #11c6d4">~ dab</td>
-            <td class="chatTopDivide">This is a test message. I will add in more lines to test things and junk. Ok? So this is whata line will look like!This is a test message. I will add in more lines to test things and junk. Ok? So this is whata line will look like!This is a test message. I will add in more lines to test things and junk. Ok? So this is whata line will look like!This is a test message. I will add in more lines to test things and junk. Ok? So this is whata line will look like!This is a test message. I will add in more lines to test things and junk. Ok? So this is whata line will look like!</td>
-        </tr>
-
-        <tr>
-            <td>&nbsp;</td>
-            <td class="chatRightDivide">&nbsp;</td>
-            <td>And anotherl ine here. Notice how then ick isn'tshown again? Yea. Sexy right?</td>
-        </tr>
-
-        <tr>
-            <td>&nbsp;</td>
-            <td class="chatRightDivide">&nbsp;</td>
-            <td>!ping</td>
-        </tr>
-
-        <tr class="chatTopDivide">
-            <td>&nbsp;</td>
-            <td class="chatRightDivide nickMenu" style="color: #2c39c8">% DeBot</td>
-            <td>PONG!</td>
-        </tr>
-
-        <tr>
-            <td>10:45</td>
-            <td class="chatRightDivide">&nbsp;</td>
-            <td>&nbsp;</td>
-        </tr>
-        <tr class="chatTopDivider">
-            <td>&nbsp;</td>
-            <td class="chatRightDivide nickMenu" style="color: #11c6d4">~ dab</td>
-            <td>Cool, glad to see I'm still connected</td>
-        </tr>
-        <tr>
-            <td>&nbsp;</td>
-            <td class="chatRightDivide">&nbsp;</td>
-            <td><span class="nickMenu" style="color: #11c6d4">~ dab</span> is doing a /me right now</td>
-        </tr>
-        <tr class="chatTopDivide">
-            <td>&nbsp;</td>
-            <td class="chatRightDivide nickMenu" style="color: #453790">+ Redirect_Left</td>
-            <td>Ohi guys, I'm rdl &lt;3</td>
-        </tr>
-        <tr class="chatTopDivide">
-            <td class="notice">&nbsp;</td>
-            <td class="notice chatRightDivide nickMenu" style="color: #453790"></td>
-            <td class="notice">This is a /notice</td>
-        </tr>
-        <tr class="chatTopDivide">
-            <td class="info">&nbsp;</td>
-            <td class="info chatRightDivide"><span class="nickMenu" style="color:#953ab8;">FoxTrot</span></td>
-            <td class="info">(ident@host.com) has joined the channel</td>
-        </tr>
-        <tr class="chatTopDivide">
-            <td>&nbsp;</td>
-            <td class="chatRightDivide" style="color: #453790"></td>
-            <td>Ohi guys, I'm Foxtrot &lt;3</td>
-        </tr>
-        <tr class="info chatTopDivide">
-            <td>&nbsp;</td>
-            <td class="chatRightDivide"><span class="nickMenu" style="color:#953ab8;">FoxTrot</span></td>
-            <td>(ident@host.com) sets mode +o FoxTrot</td>
-        </tr>
-        <tr class="info chatTopDivide">
-            <td>&nbsp;</td>
-            <td class="chatRightDivide"><span class="nickMenu" style="color:#953ab8;">FoxTrot</span></td>
-            <td>(ident@host.com) sets mode +a FoxTrot</td>
-        </tr>
-        <tr class="notice chatTopDivide">
-            <td>&nbsp;</td>
-            <td class="chatRightDivide" style="color: #453790">&nbsp;</td>
-            <td>This is a /notice</td>
-        </tr>
-        <tr class="info chatTopDivide">
-            <td>&nbsp;</td>
-            <td class="chatRightDivide"><span class="nickMenu" style="color:#953ab8;">FoxTrot</span></td>
-            <td>(ident@host.com) is now known as FoxTrot2</td>
-        </tr>
-        <tr class="info chatTopDivide">
-            <td>&nbsp;</td>
-            <td class="chatRightDivide"><span class="nickMenu" style="color:#953ab8;">FoxTrot</span></td>
-            <td>(ident@host.com) quit IRC (Reason here)</td>
-        </tr>
-        <tr class="chatTopDivide">
-            <td class="info">&nbsp;s</td>
-            <td class="info chatRightDivide"><span class="nickMenu" style="color:#953ab8;">FoxTrot</span></td>
-            <td class="info">(ident@host.com) has joined the channel</td>
         </tr>
     </table>
 </body>
