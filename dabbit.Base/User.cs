@@ -62,7 +62,7 @@ namespace dabbit.Base
         }
 
         public string Name { get; set; }
-        public string Display { get { return this.Nick + "!" + this.Ident + "@" + this.Host; } }
+        public string Display { get { return (this.Modes.Count() != 0 ? this.Modes[0] : "") + this.Nick; } }
         public string IrcOp { get; set; }
         public bool Identified { get; set; }
         public string Server { get; set; }

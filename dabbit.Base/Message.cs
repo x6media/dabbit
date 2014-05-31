@@ -9,7 +9,7 @@ namespace dabbit.Base
     public class Message
     {
         public string[] Parts { get; internal set; }
-        public string MessageLine { get; internal set; }
+        public string MessageLine { get; set; }
         public string Command { get; internal set; }
         public string RawLine { get; internal set; }
 

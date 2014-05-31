@@ -15,7 +15,6 @@
         .chatRightDivide {
             border-right: 2px solid #444444;
             text-align: right;
-            margin-right: 3px;
             width: auto;
             max-width: 200px;
         }
@@ -33,7 +32,6 @@
         
         table {
             height: 100%;
-            width: 100%;
         }
 
         table tr td {
@@ -55,10 +53,25 @@
             opacity: 0.75; /* fx, safari, opera */
         }
     </style>
-    
-    <script language="javascript">
+    <script type="text/javascript">
+        function objToString(obj) {
+            var tabjson = [];
+            for (var p in obj) {
+                if (obj.hasOwnProperty(p)) {
+                    tabjson.push('"' + p + '"' + ':' + obj[p]);
+                }
+            } tabjson.push()
+            return '{' + tabjson.join(',') + '}';
+        }
+    </script>
+<script language="javascript">
         var lastTime = new Date(1900, 1, 1);
         var lastFrom = "";
+
+        function scrollToEnd()
+        {
+            window.scrollTo(0, document.body.scrollHeight);
+        }
 
         function toggleOverlay(bShowOverlay)
         {
@@ -84,6 +97,7 @@
                 document.getElementById("overlaydiv").style.visibility = "hidden";
                 window.external.OverlayHide();
             }
+            scrollToEnd();
 
         }
 
@@ -91,7 +105,7 @@
         {
             return (number < 10 ? '0' : '') + number;
         }
-        
+
         function addLine(sType, sWho, sWhoColor, sLine)
         {
             if (lastFrom == sWho)
@@ -102,7 +116,7 @@
             {
                 lastFrom = sWho;
             }
-            
+
             var date = new Date();
 
             if (lastTime.getMinutes() != date.getMinutes() || lastTime.getHours() != date.getHours())
@@ -124,7 +138,7 @@
 
                 var cellMessage = row.insertCell(2);
                 //cellMessage.setAttribute("class", sType);
-                
+
 
                 cellTimeStamp.innerHTML = date.getHours() + ":" + pad2(date.getMinutes()) + ":" + pad2(date.getSeconds());
                 cellNickname.innerHTML = "&nbsp;";
@@ -139,13 +153,22 @@
             var cellTimeStamp = row.insertCell(0);
             //cellTimeStamp.setAttribute("class", sType);
             cellTimeStamp.className = sType;
-            
+
 
             var cellNickname = row.insertCell(1);
            // cellNickname.setAttribute("class", sType + " chatRightDivide");
             cellNickname.className = sType;
             cellNickname.className += " chatRightDivide";
-            cellNickname.style.color = sWhoColor;
+            try
+            {
+                cellNickname.style.color = sWhoColor;
+            }
+            catch(err)
+            {
+                alert(objToString(err));
+                alert(sWhoColor);
+            }
+
 
             var cellMessage = row.insertCell(2);
             //cellMessage.setAttribute("class", sType);
@@ -155,25 +178,25 @@
             cellNickname.innerHTML = sWho + "&nbsp;&nbsp;";
             cellMessage.innerHTML = "&nbsp;&nbsp;" + sLine;
 
-
+            scrollToEnd();
         }
 
         function addInfo(sWho, sWhoColor, sLine)
         {
             var dateObj = new Date();
             var sTime = "";
-            
+
 
         }
     </script>
 </head>
-<body onload="addLine('notice', '& dab', '#ff0000', 'Omg like message is here ok');">
+<body onload="scrollToEnd()">
     <div id="overlaydiv" class="dim" onclick="toggleOverlay(false);">&nbsp;</div>
     <table id="tblChat" border="0" cellspacing="0" cellpadding="0">
         <tr style="max-height: 100%; display:block;">
             <td>&nbsp;</td>
             <td class="chatRightDivide">&nbsp;</td>
-            <td>
+            <td style="width:100%;">
                 <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
                 <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
             </td>

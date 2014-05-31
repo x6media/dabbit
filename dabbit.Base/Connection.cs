@@ -239,7 +239,6 @@ namespace dabbit.Base
 
         public void Write(string message)
         {
-            
             this.socketWrapper.Writer.WriteLine(message);
             this.socketWrapper.Writer.Flush();
         }

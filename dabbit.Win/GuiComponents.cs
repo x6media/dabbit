@@ -20,6 +20,7 @@ namespace dabbit.Win
         void SwitchAway(bool hideControl);
         void SwitchAway();
         void SwitchTo();
+        void ScrollToEnd();
     }
     internal enum LineTypes
     {
@@ -120,6 +121,46 @@ namespace dabbit.Win
             pan.Children.Add(new TextBlock(new Run("  " + header)));
             child.Header = pan;
             return child;
+        }
+
+        public static void UpdateIcon(TreeViewItem item, IconTypes newIcon)
+        {
+                Image image = new Image();
+                image.Height = 16;
+
+                switch (newIcon)
+                {
+                    case IconTypes.Offline:
+                        ((Image)((StackPanel)item.Header).Children[0]).Source = offlinePng.Frames[0];
+                        break;
+                    case IconTypes.Online:
+                        ((Image)((StackPanel)item.Header).Children[0]).Source = onlinePng.Frames[0];
+                        break;
+                    case IconTypes.Away:
+                        ((Image)((StackPanel)item.Header).Children[0]).Source = awayPng.Frames[0];
+                        break;
+                }
+                
+        }
+
+        public static void SetSelectedItem(ref TreeView control, object item)
+        {
+            try
+            {
+                System.Windows.DependencyObject dObject = control
+                    .ItemContainerGenerator
+                    .ContainerFromItem(item);
+
+                //uncomment the following line if UI updates are unnecessary
+                //((TreeViewItem)dObject).IsSelected = true;                
+
+                MethodInfo selectMethod =
+                   typeof(TreeViewItem).GetMethod("Select",
+                   BindingFlags.NonPublic | BindingFlags.Instance);
+
+                selectMethod.Invoke(dObject, new object[] { true });
+            }
+            catch { }
         }
 
 

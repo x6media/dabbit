@@ -11,6 +11,7 @@ namespace dabbit.Win
     internal class GuiChannel : Channel, IWindow
     {
         public WebBrowser Window { get { return this.wb; } }
+        public TreeViewItem TreeItem { get; set; }
 
         internal GuiChannel(Server svr)
             :base(svr)
@@ -20,6 +21,7 @@ namespace dabbit.Win
             this.wb.NavigateToStream(docStream);
             jsb = new JavascriptBridge(this.wb);
             this.wb.ObjectForScripting = jsb;
+            this.wb.Visibility = System.Windows.Visibility.Collapsed;
         }
 
 
@@ -41,17 +43,21 @@ namespace dabbit.Win
 
                 int maxColor = 16764108;
                 int decAgain = int.Parse(who.Host.ToMd5().Substring(0, 6), System.Globalization.NumberStyles.HexNumber);
-
                 decAgain = decAgain % maxColor;
+
+                string colorHex = decAgain.ToString("X");
+                colorHex = colorHex.PadRight(6, '0');
+                colorHex = "#" + colorHex;
+
                 if (who.Modes.Count != 0)
                 {
-                    this.wb.InvokeScript("addLine", new object[] { type.ToString().ToLower(), who.Modes[0] + " " + who.Nick, decAgain.ToString("X"), message });
+                    this.wb.InvokeScript("addLine", new object[] { type.ToString().ToLower(), who.Modes[0] + who.Nick, colorHex, message });
                 }
                 else
                 {
                     string[] omgtest = new string[] { type.ToString(), who.Nick, decAgain.ToString("X"), message };
 
-                    this.wb.InvokeScript("addLine", new object[] { type.ToString().ToLower(), "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + who.Nick, decAgain.ToString("X"), message });
+                    this.wb.InvokeScript("addLine", new object[] { type.ToString().ToLower(), "&nbsp;&nbsp;&nbsp;" + who.Nick, colorHex, message });
                 }
             });
 
@@ -60,10 +66,15 @@ namespace dabbit.Win
 
         public void SwitchAway(bool hideControl)
         {
-            if (hideControl)
+
+            this.wb.InvokeIfRequired(() =>
             {
-                this.wb.Visibility = System.Windows.Visibility.Collapsed;
-            }
+                if (hideControl)
+                {
+                    this.wb.Visibility = System.Windows.Visibility.Collapsed;
+                }
+
+            });
 
             this.SwitchAway();
         }
@@ -112,6 +123,28 @@ namespace dabbit.Win
                 this.wb.Visibility = System.Windows.Visibility.Visible;
             });
 
+        }
+        
+        public void ScrollToEnd()
+        {
+
+            this.wb.InvokeIfRequired(() =>
+            {
+                if (!this.wb.IsLoaded)
+                {
+                    tmr = new System.Timers.Timer(800);
+                    tmr.AutoReset = false;
+                    tmr.Elapsed += delegate(object sender, System.Timers.ElapsedEventArgs e)
+                    {
+                        this.ScrollToEnd();
+                    };
+                    tmr.Start();
+                    return;
+                }
+
+                this.wb.InvokeScript("scrollToEnd", new object[] { });
+
+            });
         }
 
         System.Timers.Timer tmr;

@@ -7,19 +7,64 @@ using dabbit.Base;
 
 using System.Net.Sockets;
 using System.Net;
+using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
 using System.IO;
 using System.Threading;
 using System.Windows.Controls;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
 namespace dabbit.Win
 {
-    public class WinContext : IContext
+    public class WinContext : IContext, INotifyPropertyChanged
     {
-        public WinContext(Panel sp)
+        
+        private User[] activeUserList;
+        public User[] ActiveUserList
+        {
+            get
+            {
+                return this.activeUserList;
+            }
+            set
+            {
+                this.activeUserList = value;
+                this.users.InvokeIfRequired(() =>
+                {
+                    this.users.ItemsSource = this.activeUserList;
+                    NotifyPropertyChanged();
+                });
+
+            }
+        }
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        internal void SetUserList(IWindow sender, User[] users)
+        {
+            if (this.openItems[0] == sender)
+                this.ActiveUserList = users;
+        }
+
+        // This method is called by the Set accessor of each property. 
+        // The CallerMemberName attribute that is applied to the optional propertyName 
+        // parameter causes the property name of the caller to be substituted as an argument. 
+        private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
+        {
+            if (PropertyChanged != null)
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }
+
+
+        public WinContext(Panel sp, TreeView chanlist, ListBox userList)
         {
             this.Servers = new List<Server>();
             this.Settings = new Dictionary<string, string>();
             this.sp = sp;
+            this.tree = chanlist;
+            this.users = userList;
         }
         public Connection CreateConnection(ConnectionType connectionType, ISocketWrapper socket)
         {
@@ -31,6 +76,7 @@ namespace dabbit.Win
                 return null;
         }
 
+        
         public bool SwitchView(Server svr, string channel)
         {
             if (svr == null)
@@ -42,37 +88,56 @@ namespace dabbit.Win
 
             if (String.IsNullOrEmpty(channel))
             {
-                foreach (IWindow win in this.openItems)
-                {
 
-                    if (win != svr)
-                        win.SwitchAway(true);
+                lock (this.openItems)
+                {
+                    foreach (IWindow win in this.openItems)
+                    {
+                        win.ScrollToEnd();
+
+                        if (win != svr)
+                            win.SwitchAway(true);
+                    }
                 }
 
-                this.openItems.Clear();
+                //this.openItems.Clear();
 
                 ((GuiServer)svr).SwitchTo();
+                ((GuiServer)svr).AddLine(LineTypes.Info, new User() { Nick = "debug", Host = "localhost" }, "Debug for: " + svr.Connection.Host);
                 this.openItems.Add(((GuiServer)svr));
                 return true;
             }
 
+            channel = channel.TrimStart();
 
             Channel chan;
+            var chans = svr.Channels.Keys;
+            bool found = false;
+
+            foreach(string itm in chans)
+            {
+                if (itm == channel)
+                    found = true;
+            }
+
             svr.Channels.TryGetValue(channel, out chan);
 
 
-            foreach (IWindow win in this.openItems)
+            lock (this.openItems)
             {
-
-                if (win != chan)
-                    win.SwitchAway(true);
+                foreach (IWindow win in this.openItems)
+                {
+                    if (win != chan)
+                        win.SwitchAway(true);
+                }
             }
 
-            this.openItems.Clear();
+            //this.openItems.Clear();
 
             ((GuiChannel)chan).SwitchTo();
 
             this.openItems.Add((GuiChannel)chan);
+            ((GuiChannel)chan).AddLine(LineTypes.Info, new User() { Nick = "debug", Host = "localhost" }, "Debug for: " + channel);
 
             return true;
             
@@ -84,28 +149,19 @@ namespace dabbit.Win
             {
                 throw new ArgumentNullException("svr");
             }
-
-
-            foreach (IWindow win in this.openItems)
-            {
-                if (win != svr)
-                    win.SwitchAway(true);
-            }
-
-            this.openItems.Clear();
-
+            
             if (String.IsNullOrEmpty(channel))
             {
                 ((GuiServer)svr).SwitchTo();
                 return true;
             }
 
+            channel = channel.TrimStart();
 
             Channel chan;
             svr.Channels.TryGetValue(channel, out chan);
 
             ((GuiChannel)chan).SwitchTo();
-
             this.openItems.Add((GuiChannel)chan);
 
             return true;
@@ -117,22 +173,15 @@ namespace dabbit.Win
             Server svr = new GuiServer(this, me, con);
 
             this.sp.Children.Add(((GuiServer)svr).Window); 
+
             
+            TreeViewItem tvi = TreeviewHelper.CreateTreeViewItem(con.Host + ":" + con.Port.ToString(), TreeviewHelper.IconTypes.Offline);
+            this.tree.Items.Add(tvi);
+            ((GuiServer)svr).TreeItem = tvi;
+            tvi.ExpandSubtree();
+
             string tmp = ((object)this.openItems).GetHashCode().ToString();
-
-            /*
-            if (this.openItems.Count == 0)
-            {
-                this.openItems.Add((GuiServer)svr);
-            }
-            else
-            {
-                IWindow temp = this.openItems[0];
-                this.openItems[0] = (GuiServer)svr;
-                this.openItems.Add(temp);
-            }
-            */
-
+            
             this.SwitchView(svr, null);
             ((GuiServer)svr).jsb.OnOverlayHide += WinContext_OnOverlayHide;
             ((GuiServer)svr).jsb.OnOverlayVisible += WinContext_OnOverlayVisible;
@@ -145,23 +194,62 @@ namespace dabbit.Win
             thrd.Start();
             this.socketThreads.Add(thrd);
 
-            svr.Connection.Write("JOIN #dab");
         }
 
         void WinContext_OnOverlayVisible(object sender)
         {
+            WebBrowser sndr = sender as WebBrowser;
+            if (!sndr.IsLoaded)
+            {
+                return;
+            }
+
+            sndr.InvokeScript("scrollToEnd", new object[] { });
         }
 
         void WinContext_OnOverlayHide(object sender)
-        {
+        {            
+            int senderIndex = 0;
 
-            foreach (IWindow webbr in this.openItems)
+            for(int i = 0; i < this.openItems.Count; i++)
             {
-                if (webbr.Window != sender)
+                if (this.openItems[i].Window != sender)
                 {
-                    webbr.SwitchAway();
+                    this.openItems[i].SwitchAway();
+                }
+                else
+                {
+                    senderIndex = i;
+
                 }
             }
+
+            GuiChannel client = this.openItems[senderIndex] as GuiChannel;
+            if (client == null)
+            {
+                ((StackPanel)this.users.Parent).Visibility = System.Windows.Visibility.Collapsed;
+            }
+            else
+            {
+                if (((StackPanel)this.users.Parent).Visibility == System.Windows.Visibility.Collapsed)
+                    ((StackPanel)this.users.Parent).Visibility = System.Windows.Visibility.Visible;
+                //this.users.Items.Clear();
+
+                /*foreach (User user in client.Users)
+                {
+                    this.users.Items.Add(user.Display);
+                }*/
+                this.ActiveUserList = client.Users.ToArray();
+                ((TextBlock)((StackPanel)this.users.Parent).Children[0]).Text = "Users " + client.Users.Count();
+            }
+
+            if (this.openItems.Count > 0)
+            {
+                var temp = this.openItems[0];
+                this.openItems[0] = this.openItems[senderIndex];
+                this.openItems[senderIndex] = temp;
+            }
+
         }
 
         public List<Server> Servers { get; set; }
@@ -183,9 +271,7 @@ namespace dabbit.Win
         public Channel CreateChannel(Server svr)
         {
             GuiChannel guichan = null;
-
-            string tmp = ((object)this.openItems).GetHashCode().ToString();
-
+            
             this.sp.InvokeIfRequired(() =>
             {
                 guichan = new GuiChannel(svr);
@@ -195,18 +281,10 @@ namespace dabbit.Win
 
                 this.sp.Children.Add(guichan.Window);
 
-                
-                /*
-                if (this.openItems.Count == 0)
-                {
-                    this.openItems.Add(guichan);
-                }
-                else
-                {
-                    IWindow temp = this.openItems[0];
-                    this.openItems[0] = guichan;
-                    this.openItems.Add(temp);
-                }*/
+                TreeViewItem tvi = TreeviewHelper.CreateTreeViewItem("#", TreeviewHelper.IconTypes.None);
+                ((GuiServer)svr).TreeItem.Items.Add(tvi);
+                guichan.TreeItem = tvi;
+
             });
 
 
@@ -283,8 +361,10 @@ namespace dabbit.Win
         }
 
         private Panel sp;
+        private TreeView tree;
+        private ListBox users;
         private List<System.Threading.Thread> socketThreads = new List<System.Threading.Thread>();
-        private List<IWindow> openItems = new List<IWindow>();
+        internal List<IWindow> openItems = new List<IWindow>();
     }
 
 
@@ -308,14 +388,32 @@ namespace dabbit.Win
         public Task ConnectAsync()
         {
             this.sock.Connect(this.Host, this.Port);
-            this.streamRead = new StreamReader(this.sock.GetStream());
-            this.streamWriter = new StreamWriter(this.sock.GetStream());
 
+            if (this.secure)
+            {
+                this.sslStream = new System.Net.Security.SslStream(this.sock.GetStream(), true, new RemoteCertificateValidationCallback(ValidateServerCertificate));
+                this.sslStream.AuthenticateAsClient(this.Host);
+
+                this.streamRead = new StreamReader(this.sslStream);
+                this.streamWriter = new StreamWriter(this.sslStream);
+            }
+            else
+            {
+                this.streamRead = new StreamReader(this.sock.GetStream());
+                this.streamWriter = new StreamWriter(this.sock.GetStream());
+            }
             this.streamWriter.AutoFlush = true;
 
             return new Task(new Action(nope));
         }
-
+        private bool ValidateServerCertificate(
+      object sender,
+      X509Certificate certificate,
+      X509Chain chain,
+      SslPolicyErrors sslPolicyErrors)
+        {
+            return true;
+        }
         public void nope()
         { }
 
@@ -343,7 +441,8 @@ namespace dabbit.Win
         private int port;
         private bool secure = false;
 
-        private NetworkStream ns;
+        //private NetworkStream ns;
+        private System.Net.Security.SslStream sslStream;
         private StreamReader streamRead;
         private StreamWriter streamWriter;
     }

@@ -13,7 +13,7 @@ namespace dabbit.Base
     {
         public static string ToMd5(this string me)
         {
-            byte[] bytePassword = Encoding.UTF8.GetBytes(me);
+            byte[] bytePassword = Encoding.UTF8.GetBytes(me ?? "20412333");
 
             using (MD5 md5 = MD5.Create())
             {

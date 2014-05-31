@@ -18,8 +18,9 @@ namespace dabbit.Win
          "IsSelectionChangeActive",
          BindingFlags.NonPublic | BindingFlags.Instance
             );
+        public delegate void OnItemsSelectedChange(object sender, List<TreeViewItem> selectedItems);
 
-        public static void AllowMultiSelection(TreeView treeView)
+        public static void AllowMultiSelection(TreeView treeView, OnItemsSelectedChange callback)
         {
             if (IsSelectionChangeActiveProperty == null) return;
 
@@ -66,6 +67,8 @@ namespace dabbit.Win
                     treeViewItem.IsSelected = false;
                     selectedItems.Remove(treeViewItem);
                 }
+
+                callback(a, selectedItems);
             };
 
         }

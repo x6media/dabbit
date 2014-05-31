@@ -24,7 +24,7 @@ namespace dabbit.Base
 
     public class Server
     {
-        public string Name { get; set; }
+        public string Name { get { return this.Display; } set { this.Attributes["NETWORK"] = value; } }
         public ServerType Type { get { return this.serverType; } }
         public User Me { get { return this.me; } }
         public Dictionary<string, string> Attributes { get { return this.attributes; } }
@@ -413,10 +413,17 @@ namespace dabbit.Base
                         if (this.HostInNames)
                         {
                             string[] nick = msg.Parts[i].Split('!');
-                            string[] identhost = nick[1].Split('@');
-                            tempuser.Nick = nick[0];
-                            tempuser.Ident = identhost[0];
-                            tempuser.Host = identhost[1];
+                            if (nick.Count() > 1)
+                            {
+                                string[] identhost = nick[1].Split('@');
+                                tempuser.Nick = nick[0];
+                                tempuser.Ident = identhost[0];
+                                tempuser.Host = identhost[1];
+                            }
+                            else
+                            {
+                                tempuser.Nick = msg.Parts[i];
+                            }
                         }
                         else
                         {
@@ -528,6 +535,10 @@ namespace dabbit.Base
 
                         
 
+                    }
+                    if (nickmsg.From.Parts[0] == me.Nick)
+                    {
+                        me.Nick = nickmsg.To.Substring(1);
                     }
 
                     nickmsg.Channels = nickchannels.ToArray();
@@ -773,6 +784,7 @@ namespace dabbit.Base
                         else if (key == "UHNAMES")
                         {
                             this.connection.Write("PROTOCTL UHNAMES");
+                            this.hostInNames = true;
                         } 
                         else if (key == "PREFIX")
                         {
@@ -780,7 +792,7 @@ namespace dabbit.Base
                             string[] split = tosplit.Split(')');
                             this.Attributes.Add("PREFIX_MODES", split[0]);
                             this.Attributes.Add("PREFIX_PREFIXES", split[1]);
-                            this.hostInNames = true;
+                            //
                         }
                         else if (key == "CHANMODES")
                         {
@@ -1094,7 +1106,7 @@ namespace dabbit.Base
 
         private User tempWhois;
         private List<ListEntry> tempList;
-        private List<Channel> channels = new List<Channel>();
+        //private List<Channel> channels = new List<Channel>();
         private User me;
         private ServerType serverType = ServerType.Unknown;
         private Dictionary<string, string> attributes = new Dictionary<string, string>();
