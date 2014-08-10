@@ -34,10 +34,10 @@ namespace dabbit.Base
             }
         }
 
-        public string Nick { get; set; }
-        public string Ident { get; set; }
+        public virtual string Nick { get; set; }
+        public virtual string Ident { get; set; }
 
-        public string Host 
+        public virtual string Host 
         { 
             get { return host; }
             set { host = value; } 
@@ -47,7 +47,7 @@ namespace dabbit.Base
 
         public string IdentifiedAs { get; set; }
 
-        public List<string> Modes
+        public virtual List<string> Modes
         {
             get
             {
@@ -79,7 +79,7 @@ namespace dabbit.Base
         public int IdleTime { get; set; }
 
         public DateTime SignedOn { get; set; }
-        public List<string> Attributes 
+        public virtual List<string> Attributes 
         {
             get
             {

@@ -293,6 +293,16 @@ namespace dabbit.Win
 
         }
 
+        public User CreateUser()
+        {
+            return new User();
+        }
+
+        public User CreateUser(SourceEntity source)
+        {
+            return new User(source);
+        }
+
         public void FormClosing()
         {
             foreach(Server svr in this.Servers)

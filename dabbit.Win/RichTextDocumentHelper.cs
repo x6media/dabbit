@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -7,7 +8,7 @@ using System.Windows.Documents;
 
 namespace dabbit.Win
 {
-    public class RichTextBoxHelper : DependencyObject
+    public class RichTextBoxHelperParagraph : DependencyObject
     {
         public static Paragraph GetDocumentXaml(DependencyObject obj)
         {
@@ -21,7 +22,7 @@ namespace dabbit.Win
           DependencyProperty.RegisterAttached(
             "DocumentXaml",
             typeof(Paragraph),
-            typeof(RichTextBoxHelper),
+            typeof(RichTextBoxHelperParagraph),
             new FrameworkPropertyMetadata
             {
                 BindsTwoWayByDefault = true,
@@ -38,4 +39,5 @@ namespace dabbit.Win
                 }
             });
     }
+
 }

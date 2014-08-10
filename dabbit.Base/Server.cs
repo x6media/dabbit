@@ -311,7 +311,7 @@ namespace dabbit.Base
                     }
                     else
                     {
-                        User usr = new User();
+                        User usr = this.ctx.CreateUser();
                         usr.Nick = jm.From.Parts[0];
                         usr.Ident = jm.From.Parts[1];
                         usr.Host = jm.From.Parts[2];
@@ -407,7 +407,7 @@ namespace dabbit.Base
                         if (String.IsNullOrEmpty(msg.Parts[i]))
                             continue;
 
-                        User tempuser = new User();
+                        User tempuser = this.ctx.CreateUser();
                         tempuser.Modes = new List<string>();
 
                         if (this.HostInNames)
@@ -874,7 +874,7 @@ namespace dabbit.Base
                     // Meaning the whois is not thread safe.
                     if (this.tempWhois == null || tempWhois.Nick != msg.Parts[3])
                     {
-                        this.tempWhois = new User();
+                        this.tempWhois = this.ctx.CreateUser();
                         this.tempWhois.Nick = msg.Parts[3];
                     }
 
@@ -888,7 +888,7 @@ namespace dabbit.Base
                     // Meaning the whois is not thread safe.
                     if (this.tempWhois == null || tempWhois.Nick != msg.Parts[3])
                     {
-                        this.tempWhois = new User();
+                        this.tempWhois = this.ctx.CreateUser();
                         this.tempWhois.Nick = msg.Parts[3];
                     }
 
@@ -900,7 +900,7 @@ namespace dabbit.Base
                     // Meaning the whois is not thread safe.
                     if (this.tempWhois == null || tempWhois.Nick != msg.Parts[3])
                     {
-                        this.tempWhois = new User();
+                        this.tempWhois = this.ctx.CreateUser();
                         this.tempWhois.Nick = msg.Parts[3];
                     }
 
@@ -913,7 +913,7 @@ namespace dabbit.Base
                     // Meaning the whois is not thread safe.
                     if (this.tempWhois == null || tempWhois.Nick != msg.Parts[3])
                     {
-                        this.tempWhois = new User();
+                        this.tempWhois = this.ctx.CreateUser();
                         this.tempWhois.Nick = msg.Parts[3];
                     }
 
@@ -925,7 +925,7 @@ namespace dabbit.Base
                     // Meaning the whois is not thread safe.
                     if (this.tempWhois == null || tempWhois.Nick != msg.Parts[3])
                     {
-                        this.tempWhois = new User();
+                        this.tempWhois = this.ctx.CreateUser();
                         this.tempWhois.Nick = msg.Parts[3];
                     }
 
@@ -948,7 +948,7 @@ namespace dabbit.Base
                     // Meaning the whois is not thread safe.
                     if (this.tempWhois == null || tempWhois.Nick != msg.Parts[3])
                     {
-                        this.tempWhois = new User();
+                        this.tempWhois = this.ctx.CreateUser();
                         this.tempWhois.Nick = msg.Parts[3];
                     }
 
@@ -959,7 +959,7 @@ namespace dabbit.Base
 
                     if (this.tempWhois == null || tempWhois.Nick != msg.Parts[3])
                     {
-                        this.tempWhois = new User();
+                        this.tempWhois = this.ctx.CreateUser();
                         this.tempWhois.Nick = msg.Parts[3];
                     }
 
@@ -971,7 +971,7 @@ namespace dabbit.Base
                     // Meaning the whois is not thread safe.
                     if (this.tempWhois == null || tempWhois.Nick != msg.Parts[3])
                     {
-                        this.tempWhois = new User();
+                        this.tempWhois = this.ctx.CreateUser();
                         this.tempWhois.Nick = msg.Parts[3];
                     }
 
@@ -984,7 +984,7 @@ namespace dabbit.Base
                     // Meaning the whois is not thread safe.
                     if (this.tempWhois == null || tempWhois.Nick != msg.Parts[3])
                     {
-                        this.tempWhois = new User();
+                        this.tempWhois = this.ctx.CreateUser();
                         this.tempWhois.Nick = msg.Parts[3];
                     }
 
@@ -996,7 +996,7 @@ namespace dabbit.Base
                     // Meaning the whois is not thread safe.
                     if (this.tempWhois == null || tempWhois.Nick != msg.Parts[3])
                     {
-                        this.tempWhois = new User();
+                        this.tempWhois = this.ctx.CreateUser();
                         this.tempWhois.Nick = msg.Parts[3];
                     }
 
@@ -1008,7 +1008,7 @@ namespace dabbit.Base
                     // Meaning the whois is not thread safe.
                     if (this.tempWhois == null || tempWhois.Nick != msg.Parts[3])
                     {
-                        this.tempWhois = new User();
+                        this.tempWhois = this.ctx.CreateUser();
                         this.tempWhois.Nick = msg.Parts[3];
                     }
 

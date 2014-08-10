@@ -23,6 +23,9 @@ namespace dabbit.Base
         ISocketWrapper CreateSocket(string host, int port, bool secure);
 
         Channel CreateChannel(Server svr);
+
+        User CreateUser(SourceEntity source);
+        User CreateUser();
     }
 
 

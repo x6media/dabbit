@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:dabbit.Win"
+            xmlns:dabbit="clr-namespace:dabbit.Base;assembly=dabbit.Base"
              mc:Ignorable="d" 
              DataContext="{Binding}"
              d:DesignHeight="300" d:DesignWidth="300">
@@ -20,19 +21,11 @@
 
         <Rectangle MouseDown="Rectangle_MouseDown" Panel.ZIndex="1000" Opacity=".5" Grid.Column="0" Grid.Row="0" Grid.RowSpan="10" Fill="Black" Grid.ColumnSpan="10" />
 
-        <RichTextBox Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="10" BorderThickness="1" Background="Transparent" IsReadOnly="True" IsDocumentEnabled="True" local:RichTextBoxHelper.DocumentXaml="{Binding FormattedTopic}">
+        <RichTextBox Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="10" BorderThickness="1" Background="Transparent" IsReadOnly="True" IsDocumentEnabled="True" local:RichTextBoxHelperParagraph.DocumentXaml="{Binding FormattedTopic}">
         </RichTextBox>
-        
-        <RichTextBox BorderThickness="0" Grid.Row="1" Grid.Column="0" Background="Transparent" IsReadOnly="True" IsDocumentEnabled="True">
-            <FlowDocument>
-                <Paragraph>
-                    <Run Text="Hello" />
-                    <Run Text=" "/>
-                    <Hyperlink TextDecorations="none" Foreground="#F784C4" PreviewMouseRightButtonDown="Hyperlink_PreviewMouseRightButtonDown">
-                        <Run Text="&lt;dab&gt;"/>
-                    </Hyperlink>
-                </Paragraph>
-            </FlowDocument>
+
+        <RichTextBox ScrollViewer.VerticalScrollBarVisibility="Auto" BorderThickness="0" Grid.Row="1" Grid.Column="0" Background="Transparent" IsReadOnly="True" IsDocumentEnabled="True" local:RichTextBoxHelperParagraph.DocumentXaml="{Binding WindowBuffer}">
+
         </RichTextBox>
 
         <GridSplitter 
@@ -47,11 +40,19 @@
                 Background="#FFBCBCBC"/>
 
         <StackPanel Grid.Column="3" Grid.Row="1">
-            <TextBlock Text="Users (0)" />
-            <ListBox BorderThickness="0" Background="Transparent">
-                <ListBoxItem>Hey</ListBoxItem>
-                <ListBoxItem>Hey</ListBoxItem>
-                <ListBoxItem>Hey</ListBoxItem>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Users (" />
+                <TextBlock Text="{Binding Users.Count}" />
+                <TextBlock Text=")" />
+            </StackPanel>
+            <ListBox BorderThickness="0" Background="Transparent" ItemsSource="{Binding Users}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate DataType="{x:Type dabbit:User}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding Display}" />
+                        </StackPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
             </ListBox>
         </StackPanel>
     </Grid>

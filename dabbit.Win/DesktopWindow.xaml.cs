@@ -41,6 +41,23 @@ namespace dabbit.Win
 
             DesktopViewModel.Context.Servers[0].Channels.Add("#dab", new Channel(DesktopViewModel.Context.Servers[0]) { Name = "#dabName" });
             DesktopViewModel.Context.Windows.Add(new GuiChnl() { Name = "#dab", Topic = new Topic() { Display = "\x03" + "4Th" + "\x03" + "6is is \x16http://dab.biz/ \x02\x09\x13\x15\x1f my webs\x0fite" } });
+
+            ((GuiChnl)DesktopViewModel.Context.Windows[0]).Users.Add(new GuiUser() { Nick = "dab", Modes = new List<string>() { "q", "a", "o" } });
+            ((GuiChnl)DesktopViewModel.Context.Windows[0]).Users.Add(new GuiUser() { Nick = "dab2", Modes = new List<string>() { "a", "o" } });
+            ((GuiChnl)DesktopViewModel.Context.Windows[0]).Users.Add(new GuiUser() { Nick = "dab3", Modes = new List<string>() { "o" } });
+
+            using (var reader = new StreamReader(@"C:\Users\me_000\Desktop\ggxy.txt"))
+            {
+                string line = String.Empty;
+
+                while((line = reader.ReadLine()) != null)
+                {
+                    DesktopViewModel.Context.Windows[0].WindowBuffer.Inlines.Add((new Run(line + Environment.NewLine)));
+                }
+            }
+            DesktopViewModel.Context.Windows[0].WindowBuffer.Inlines.Add((new Run("Hello World There!!!")));
+            
+
             DesktopViewModel.Context.Servers[0].Channels.Add("#dab.beta", new Channel(DesktopViewModel.Context.Servers[0]) { Name = "#dab.betaName" });
             DesktopViewModel.Context.Servers[0].Channels.Add("#ggxy", new Channel(DesktopViewModel.Context.Servers[0]) { Name = "#ggxyName" });
 
@@ -48,8 +65,6 @@ namespace dabbit.Win
             DesktopViewModel.Context.Servers[1].Channels.Add("#dab", new Channel(DesktopViewModel.Context.Servers[1]) { Name = "#dab" });
 
             //treeViewServerList.ItemsSource = this.srvrs;
-
-
             //MultiSelect.AllowMultiSelection(treeViewServerList, this.OnSelectedItemsChanged);
 
         }
@@ -61,7 +76,15 @@ namespace dabbit.Win
 
         private void TextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            ((GuiChnl)DesktopViewModel.Context.Windows[0]).Topic = new Topic() { Display = ((TextBox)sender).Text };
+            //((GuiChnl)DesktopViewModel.Context.Windows[0]).Users[0].Nick = ((TextBox)sender).Text;
+        }
+
+        private void TextBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                ((GuiChnl)DesktopViewModel.Context.Windows[0]).WindowBuffer.Inlines.Add((new Run(((TextBox)sender).Text + Environment.NewLine)));
+            }
         }
     }
 
@@ -137,8 +160,24 @@ namespace dabbit.Win
                 PropertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
             }
         }
+
+        public User CreateUser()
+        {
+            return new GuiUser();
+        }
+
+        public User CreateUser(SourceEntity source)
+        {
+            return new GuiUser(source);
+        }
     }
-    public interface IGuiWindow { bool IsActive { get; set; } }
+    public interface IGuiWindow 
+    { 
+        bool IsActive { get; set; }
+
+        Paragraph WindowBuffer { get; set; }
+
+    }
 
     public class GuiChnl : Channel, System.ComponentModel.INotifyPropertyChanged, IGuiWindow
     {
@@ -165,6 +204,19 @@ namespace dabbit.Win
                 NotifyPropertyChanged("FormattedTopic");
             }
         }
+
+        public override List<User> Users
+        {
+            get
+            {
+                return base.Users;
+            }
+            set
+            {
+                base.Users = value;
+                NotifyPropertyChanged();
+            }
+        }
         
         public Paragraph FormattedTopic
         {
@@ -179,6 +231,57 @@ namespace dabbit.Win
         }
         private Paragraph garbage;
         private bool isActive;
+
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+
+        // This method is called by the Set accessor of each property. 
+        // The CallerMemberName attribute that is applied to the optional propertyName 
+        // parameter causes the property name of the caller to be substituted as an argument. 
+        private void NotifyPropertyChanged([System.Runtime.CompilerServices.CallerMemberName] String propertyName = "")
+        {
+            if (PropertyChanged != null)
+            {
+                PropertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
+
+        private Paragraph windowBuffer = new Paragraph();
+
+        public Paragraph WindowBuffer
+        {
+            get { return this.windowBuffer;  }
+            set { this.windowBuffer = value; NotifyPropertyChanged(); }
+            
+        }
+    }
+
+
+
+    public class GuiUser : User, System.ComponentModel.INotifyPropertyChanged
+    {
+        public GuiUser()
+            : base()
+        {
+
+        }
+
+        public GuiUser(SourceEntity source)
+            : base(source)
+        { }
+
+        public override string Nick
+        {
+            get
+            {
+                return base.Nick;
+            }
+            set
+            {
+                base.Nick = value;
+                NotifyPropertyChanged("Display");
+                NotifyPropertyChanged();
+            }
+        }
 
         public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
 
@@ -236,6 +339,14 @@ namespace dabbit.Win
             {
                 PropertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
             }
+        }
+        private Paragraph windowBuffer = new Paragraph();
+
+        public Paragraph WindowBuffer
+        {
+            get { return this.windowBuffer; }
+            set { this.windowBuffer = value; NotifyPropertyChanged(); }
+
         }
     }
 

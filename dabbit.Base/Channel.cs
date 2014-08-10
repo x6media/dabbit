@@ -10,7 +10,7 @@ namespace dabbit.Base
     {
         protected Channel()
         {
-
+            Users = new List<User>();
         }
 
         public Channel(Server svr)
@@ -20,8 +20,8 @@ namespace dabbit.Base
 
         public string Name { get; set; }
         public virtual Topic Topic { get; set; }
-        public virtual List<Mode> Modes { get; internal set; }
-        public virtual List<User> Users { get; internal set; }
+        public virtual List<Mode> Modes { get; set; }
+        public virtual List<User> Users { get; set; }
         public string Display { get; internal set; }
 
         public DateTime Created { get; internal set; }

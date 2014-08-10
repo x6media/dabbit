@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:me="clr-namespace:dabbit.Win"
         xmlns:dabbit="clr-namespace:dabbit.Base;assembly=dabbit.Base"
-        xmlns:Controls="clr-namespace:System.Windows.Controls;assembly=TreeViewEx" 
+        xmlns:Controls="clr-namespace:System.Windows.Controls;assembly=TreeViewEx"
         Title="{Binding Display}" Height="340" Width="554">
 
     <Grid Margin="5,5,5,5">
@@ -60,7 +60,7 @@
         </ItemsControl>
 
         <!-- Bottom -->
-        <TextBox TextChanged="TextBox_TextChanged" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="12" />
+        <TextBox TextChanged="TextBox_TextChanged" KeyDown="TextBox_KeyDown" Grid.Row="1" Grid.Column="0" Background="Transparent" Grid.ColumnSpan="12" />
 
     </Grid>
 </Window>

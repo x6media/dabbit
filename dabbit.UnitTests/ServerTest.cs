@@ -350,6 +350,16 @@ namespace dabbit.UnitTests
         {
             return new Channel(svr);
         }
+
+        public User CreateUser()
+        {
+            return new User();
+        }
+
+        public User CreateUser(SourceEntity source)
+        {
+            return new User(source);
+        }
     }
 
     public class DirectConnection : Connection
