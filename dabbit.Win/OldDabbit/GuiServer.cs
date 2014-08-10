@@ -36,10 +36,31 @@ namespace dabbit.Win
             this.OnRawMessage += GuiServer_OnRawMessage;
             this.OnConnectionEstablished += GuiServer_OnConnectionEstablished;
             this.OnModeChange += GuiServer_OnModeChange;
-
+            this.OnWhoIs += GuiServer_OnWhoIs;
             systemTimer.Elapsed += systemTimer_Elapsed;
             systemTimer.Start();
 
+        }
+
+        void GuiServer_OnWhoIs(object sender, WhoisMessage e)
+        {
+            User tmp = new User(e.From);
+
+            this.AddLine(LineTypes.Info, tmp, String.Format("{0}!{1}@{2} ({3})",  e.Who.Nick, e.Who.Ident, e.Who.Host, e.Who.Name));
+
+            if (e.Who.Identified)
+                this.AddLine(LineTypes.Info, tmp, String.Format("{0} is identified as {1}", e.Who.Nick, e.Who.IdentifiedAs ?? ""));
+
+            if (!String.IsNullOrEmpty(e.Who.Server))
+                this.AddLine(LineTypes.Info, tmp, String.Format("{0} is connected to {1}", e.Who.Nick, e.Who.Server));
+
+            if (e.Who.Channels != null && e.Who.Channels.Count() > 0)
+               this.AddLine(LineTypes.Info, tmp, String.Format("{0} is in {1}", e.Who.Nick, string.Join(", ", e.Who.Channels)));
+
+            foreach(string attribute in e.Who.Attributes)
+            {
+                this.AddLine(LineTypes.Info, tmp, String.Format("{0} {1}", e.Who.Nick, attribute));
+            }
         }
 
         void GuiServer_OnPart(object sender, Message e)

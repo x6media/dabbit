@@ -8,16 +8,23 @@ namespace dabbit.Base
 {
     public class Channel
     {
+        protected Channel()
+        {
+
+        }
+
         public Channel(Server svr)
         {
             this.ServerOf = svr;
         }
 
-        public string Name { get; internal set; }
-        public Topic Topic { get; internal set; }
-        public List<Mode> Modes { get; internal set; }
-        public List<User> Users { get; internal set; }
+        public string Name { get; set; }
+        public virtual Topic Topic { get; set; }
+        public virtual List<Mode> Modes { get; internal set; }
+        public virtual List<User> Users { get; internal set; }
         public string Display { get; internal set; }
+
+        public DateTime Created { get; internal set; }
 
         public Server ServerOf { get; internal set; }
 
@@ -35,6 +42,11 @@ namespace dabbit.Base
             {
                 return !String.IsNullOrEmpty(Name) && Modes != null && Users.Count() != 0 && !String.IsNullOrEmpty(Display);
             }
+        }
+
+        public override string ToString()
+        {
+            return this.Name + "2s";
         }
     }
 

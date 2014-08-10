@@ -46,7 +46,7 @@ namespace dabbit.WinApp
         /// <param name="e">Event data that describes how this page was reached.  The Parameter
         /// property is typically used to configure the page.</param>
         //Connection con = new Connection(new DabbitContext(), "localhost", 6667, false);
-        //StreamSocket ss = new StreamSocket();
+        StreamSocket ss = new StreamSocket();
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
@@ -56,7 +56,7 @@ namespace dabbit.WinApp
         private async void DoThis()
         {
             
-            //await ss.ConnectAsync(new Windows.Networking.HostName("localhost"), "6667");
+            await ss.ConnectAsync(new Windows.Networking.HostName("localhost"), "6667");
             //con.Reader = new StreamReader(ss.OutputStream.AsStreamForWrite());
             //con.Writer = new StreamWriter(ss.InputStream.AsStreamForRead());
 

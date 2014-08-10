@@ -44,6 +44,9 @@
     <Reference Include="System.Xaml">
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
+    <Reference Include="TreeViewEx">
+      <HintPath>..\..\TreeViewEx.dll</HintPath>
+    </Reference>
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
@@ -53,13 +56,28 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="GuiChannel.cs" />
-    <Compile Include="GuiComponents.cs" />
-    <Compile Include="GuiServer.cs" />
-    <Compile Include="MultiSelect.cs" />
-    <Compile Include="RequiredBaseClasses.cs" />
+    <Compile Include="ChatWindow.xaml.cs">
+      <DependentUpon>ChatWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="DesktopWindow.xaml.cs">
+      <DependentUpon>DesktopWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="OldDabbit\GuiChannel.cs" />
+    <Compile Include="OldDabbit\GuiComponents.cs" />
+    <Compile Include="OldDabbit\GuiServer.cs" />
+    <Compile Include="OldDabbit\MultiSelect.cs" />
+    <Compile Include="OldDabbit\RequiredBaseClasses.cs" />
+    <Compile Include="RichTextDocumentHelper.cs" />
     <Compile Include="Utility.cs" />
-    <Page Include="MainWindow.xaml">
+    <Page Include="ChatWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="DesktopWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="OldDabbit\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -67,7 +85,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="MainWindow.xaml.cs">
+    <Compile Include="OldDabbit\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>

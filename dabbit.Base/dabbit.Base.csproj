@@ -39,6 +39,7 @@
     <Compile Include="Events.cs" />
     <Compile Include="Message.cs" />
     <Compile Include="Mode.cs" />
+    <Compile Include="Utility.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Channel.cs" />

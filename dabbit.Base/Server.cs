@@ -7,35 +7,24 @@ using System.Reflection;
 
 namespace dabbit.Base
 {
-    static class ServerTypeSearch
-    {
-        public static string[] MatchToServerType = new string[] { "Unreal3.2", "ircd-seven-1" };
-    }
-
-    public enum ServerType
-    {
-        Unknown = 999,
-
-        Unreal3_2 = 0, // Match # to index above
-
-        ircd7_1 = 1
-    }
-
-
     public class Server
     {
         public string Name { get { return this.Display; } set { this.Attributes["NETWORK"] = value; } }
         public ServerType Type { get { return this.serverType; } }
         public User Me { get { return this.me; } }
         public Dictionary<string, string> Attributes { get { return this.attributes; } }
-        public Dictionary<string, Channel> Channels { get; protected set; }
+        
+        public virtual Dictionary<string, Channel> Channels { get; protected set; }
         public Connection Connection { get { return this.connection; } }
         public string Display { get { return this.Attributes["NETWORK"]; } }
         public string Password { get; set; }
 
         public bool MultiModes { get { return this.multiModes; } }
         public bool HostInNames { get { return this.hostInNames; } }
-        
+
+        protected Server()
+        { }
+
         public Server(IContext ctx, User me, Connection connection)
         {
             if (ctx == null)
@@ -48,7 +37,7 @@ namespace dabbit.Base
                 me.Modes = new List<string>();
 
             this.ctx = ctx;
-            this.Channels = new Dictionary<string, Channel>();
+            this.Channels = new Dictionary<string, Channel>(StringComparer.CurrentCultureIgnoreCase);
             this.OnNumeric = new Dictionary<RawReplies, IrcEventHandler>();
 
             this.connection = connection;
@@ -380,7 +369,18 @@ namespace dabbit.Base
 
                     break;
                 #endregion
-                #region 353 Channel Users (On Join)
+                #region 353, 329  Channel Users, channel create (On Join)
+                case "329": // navi.gamergalaxy.net 329 dab #TBN 1403649503
+                    Channel chan329Val;
+
+                    this.Channels.TryGetValue(msg.Parts[3], out chan329Val);
+
+                    if (chan329Val == null)
+                        return;
+
+                    chan329Val.Created = Utility.FromUnixTime(long.Parse(msg.Parts[4]));
+
+                    break;
                 case "353": // /Names list item :hyperion.gamergalaxy.net 353 badddd = #dab :badddd BB-Aso
                     //msg.Parts[4] = msg.Parts[4].Substring(1);
                     
@@ -880,7 +880,7 @@ namespace dabbit.Base
 
                     this.tempWhois.Ident = msg.Parts[4];
                     this.tempWhois.Host = msg.Parts[5];
-                    this.tempWhois.Nick = msg.Parts[6];
+                    this.tempWhois.Name = msg.MessageLine;
 
                     break;
                 case "378": // (IRCOP Message) :simmons.freenode.net 378 ivazquez ivazquez :is connecting from *@host ip
@@ -892,7 +892,7 @@ namespace dabbit.Base
                         this.tempWhois.Nick = msg.Parts[3];
                     }
 
-                    this.tempWhois.Host = msg.Parts[7] + " - " + msg.Parts[8];
+                    this.tempWhois.Attributes.Add(msg.MessageLine);
 
                     break;
                 case "379": // :irc.foonet.com 379 dab dab :is using modes +iowghaAsxN +kcfvGqso
@@ -905,7 +905,7 @@ namespace dabbit.Base
                     }
 
                     this.tempWhois.Modes = new List<string>();
-                    this.tempWhois.Modes.Add(msg.Parts[8] + " " + msg.Parts[9]);
+                    this.tempWhois.Modes.Add(msg.Parts[7] + " " + (msg.Parts.Count() > 8 ? msg.Parts[8] : ""));
 
                     break;
                 case "307": // :registered nick?
@@ -935,7 +935,7 @@ namespace dabbit.Base
 
                     for (int i = 4; i < msg.Parts.Count(); i++)
                     {
-                        Channel chan319 = this.ctx.CreateChannel(this);
+                        Channel chan319 = new Channel(this);
                         chan319.Name = msg.Parts[i];
                         chan319.Display = msg.Parts[i];
 
@@ -955,6 +955,17 @@ namespace dabbit.Base
                     this.tempWhois.Server = msg.Parts[4] + " " + msg.MessageLine;
 
                     break;
+                case "330": // :navi.gamergalaxy.net 330 bad dab` dab :is logged in as
+
+                    if (this.tempWhois == null || tempWhois.Nick != msg.Parts[3])
+                    {
+                        this.tempWhois = new User();
+                        this.tempWhois.Nick = msg.Parts[3];
+                    }
+
+                    this.tempWhois.IdentifiedAs = msg.Parts[4];
+
+                    break;
                 case "313": // is a net admin
                     // Either never done a whois before or recycle old whois result
                     // Meaning the whois is not thread safe.
@@ -964,7 +975,8 @@ namespace dabbit.Base
                         this.tempWhois.Nick = msg.Parts[3];
                     }
 
-                    this.tempWhois.IrcOp = msg.MessageLine;
+                    this.tempWhois.IrcOp = true;
+                    this.tempWhois.Attributes.Add(msg.MessageLine);
 
                     break;
                 case "310": // available for help
@@ -999,9 +1011,10 @@ namespace dabbit.Base
                         this.tempWhois = new User();
                         this.tempWhois.Nick = msg.Parts[3];
                     }
+
                     // :hyperion.gamergalaxy.net 317 dabbb dab 4405 1383796581 :seconds idle, signon time
                     this.tempWhois.IdleTime = Int32.Parse(msg.Parts[4]);
-                    this.tempWhois.Attributes.Add(msg.Parts[5]);
+                    this.tempWhois.SignedOn = Utility.FromUnixTime(long.Parse(msg.Parts[5]));
 
                     break;
                 case "401": // No such nick
@@ -1077,7 +1090,6 @@ namespace dabbit.Base
 
         private int sortuser(User u1, User u2)
         {
-
             string prefixes = this.Attributes["PREFIX_PREFIXES"];
 
             if (u1.Modes.Count() == 0)
@@ -1114,5 +1126,21 @@ namespace dabbit.Base
         protected IContext ctx;
         private bool multiModes = false;
         private bool hostInNames = false;
+    }
+
+
+
+    static class ServerTypeSearch
+    {
+        public static string[] MatchToServerType = new string[] { "Unreal3.2", "ircd-seven-1" };
+    }
+
+    public enum ServerType
+    {
+        Unknown = 999,
+
+        Unreal3_2 = 0, // Match # to index above
+
+        ircd7_1 = 1
     }
 }

@@ -36,7 +36,17 @@ namespace dabbit.Base
 
         public string Nick { get; set; }
         public string Ident { get; set; }
-        public string Host { get; set; }
+
+        public string Host 
+        { 
+            get { return host; }
+            set { host = value; } 
+        }
+        
+        private string host = String.Empty;
+
+        public string IdentifiedAs { get; set; }
+
         public List<string> Modes
         {
             get
@@ -63,10 +73,12 @@ namespace dabbit.Base
 
         public string Name { get; set; }
         public string Display { get { return (this.Modes.Count() != 0 ? this.Modes[0] : "") + this.Nick; } }
-        public string IrcOp { get; set; }
+        public bool IrcOp { get; set; }
         public bool Identified { get; set; }
         public string Server { get; set; }
         public int IdleTime { get; set; }
+
+        public DateTime SignedOn { get; set; }
         public List<string> Attributes 
         {
             get

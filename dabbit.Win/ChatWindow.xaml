@@ -1,0 +1,59 @@
+﻿<UserControl x:Class="dabbit.Win.ChatWindow"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:dabbit.Win"
+             mc:Ignorable="d" 
+             DataContext="{Binding}"
+             d:DesignHeight="300" d:DesignWidth="300">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="5*" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="1*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+
+        <Rectangle MouseDown="Rectangle_MouseDown" Panel.ZIndex="1000" Opacity=".5" Grid.Column="0" Grid.Row="0" Grid.RowSpan="10" Fill="Black" Grid.ColumnSpan="10" />
+
+        <RichTextBox Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="10" BorderThickness="1" Background="Transparent" IsReadOnly="True" IsDocumentEnabled="True" local:RichTextBoxHelper.DocumentXaml="{Binding FormattedTopic}">
+        </RichTextBox>
+        
+        <RichTextBox BorderThickness="0" Grid.Row="1" Grid.Column="0" Background="Transparent" IsReadOnly="True" IsDocumentEnabled="True">
+            <FlowDocument>
+                <Paragraph>
+                    <Run Text="Hello" />
+                    <Run Text=" "/>
+                    <Hyperlink TextDecorations="none" Foreground="#F784C4" PreviewMouseRightButtonDown="Hyperlink_PreviewMouseRightButtonDown">
+                        <Run Text="&lt;dab&gt;"/>
+                    </Hyperlink>
+                </Paragraph>
+            </FlowDocument>
+        </RichTextBox>
+
+        <GridSplitter 
+                ResizeDirection="Columns"
+                Grid.Column="1"
+                Grid.Row="1"
+                Width="2"
+                Height="Auto"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch"
+                Margin="0"
+                Background="#FFBCBCBC"/>
+
+        <StackPanel Grid.Column="3" Grid.Row="1">
+            <TextBlock Text="Users (0)" />
+            <ListBox BorderThickness="0" Background="Transparent">
+                <ListBoxItem>Hey</ListBoxItem>
+                <ListBoxItem>Hey</ListBoxItem>
+                <ListBoxItem>Hey</ListBoxItem>
+            </ListBox>
+        </StackPanel>
+    </Grid>
+    
+</UserControl>

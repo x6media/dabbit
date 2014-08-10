@@ -112,13 +112,14 @@ namespace dabbit.Win
 
             Channel chan;
             var chans = svr.Channels.Keys;
-            bool found = false;
 
-            foreach(string itm in chans)
-            {
-                if (itm == channel)
-                    found = true;
-            }
+            //bool found = false;
+
+            //foreach(string itm in chans)
+            //{
+            //    if (itm == channel)
+            //        found = true;
+            //}
 
             svr.Channels.TryGetValue(channel, out chan);
 
@@ -305,9 +306,12 @@ namespace dabbit.Win
             }
         }
 
+        /// <summary>
+        /// Called by the user when they are sending a message or command.
+        /// </summary>
+        /// <param name="message">Input taken from the user</param>
         public void SendToActivewindow(string message)
         {
-
             GuiChannel trychan = this.openItems[0] as GuiChannel;
 
             Connection sending = null;
