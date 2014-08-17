@@ -41,13 +41,14 @@
 
         <StackPanel Grid.Column="3" Grid.Row="1">
             <StackPanel Orientation="Horizontal">
-                <TextBlock Text="Users (" />
+                <TextBlock xml:lang="en-US" x:Uid="chatWindow_Users" Text="Users" />
+                <TextBlock Text=" (" />
                 <TextBlock Text="{Binding Users.Count}" />
                 <TextBlock Text=")" />
             </StackPanel>
             <ListBox BorderThickness="0" Background="Transparent" ItemsSource="{Binding Users}">
                 <ListBox.ItemTemplate>
-                    <DataTemplate DataType="{x:Type dabbit:User}">
+                    <DataTemplate DataType="{x:Type dabbit:User}" >
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="{Binding Display}" />
                         </StackPanel>

@@ -13,7 +13,7 @@ namespace dabbit.Base
             Users = new List<User>();
         }
 
-        public Channel(Server svr)
+        public Channel(Server svr) : this()
         {
             this.ServerOf = svr;
         }

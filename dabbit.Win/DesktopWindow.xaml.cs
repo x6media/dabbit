@@ -39,40 +39,51 @@ namespace dabbit.Win
             DesktopViewModel.Context.Servers.Add(new GuiSvr(DesktopViewModel.Context, new User() { Nick = "dab" }, new Connection(DesktopViewModel.Context, new StringTestSocket(new MemoryStream(), new MemoryStream()))));
             DesktopViewModel.Context.Servers.Add(new GuiSvr(DesktopViewModel.Context, new User() { Nick = "dab" }, new Connection(DesktopViewModel.Context, new StringTestSocket(new MemoryStream(), new MemoryStream()))));
 
-            DesktopViewModel.Context.Servers[0].Channels.Add("#dab", new Channel(DesktopViewModel.Context.Servers[0]) { Name = "#dabName" });
-            DesktopViewModel.Context.Windows.Add(new GuiChnl() { Name = "#dab", Topic = new Topic() { Display = "\x03" + "4Th" + "\x03" + "6is is \x16http://dab.biz/ \x02\x09\x13\x15\x1f my webs\x0fite" } });
+            DesktopViewModel.Context.Servers[0].Channels.Add("#dab", new GuiChnl(DesktopViewModel.Context.Servers[0]) { Name = "#dab", Topic = new Topic() { Display = "\x03" + "4Th" + "\x03" + "6is is \x16http://dab.biz/ \x02\x09\x13\x15\x1f my webs\x0fite" } });
+
+            //DesktopViewModel.Context.Windows.Add(new GuiChnl() { Name = "#dab", Topic = new Topic() { Display = "\x03" + "4Th" + "\x03" + "6is is \x16http://dab.biz/ \x02\x09\x13\x15\x1f my webs\x0fite" } });
+            DesktopViewModel.Context.Windows.Add((IGuiWindow)DesktopViewModel.Context.Servers[0].Channels["#dab"]);
 
             ((GuiChnl)DesktopViewModel.Context.Windows[0]).Users.Add(new GuiUser() { Nick = "dab", Modes = new List<string>() { "q", "a", "o" } });
             ((GuiChnl)DesktopViewModel.Context.Windows[0]).Users.Add(new GuiUser() { Nick = "dab2", Modes = new List<string>() { "a", "o" } });
             ((GuiChnl)DesktopViewModel.Context.Windows[0]).Users.Add(new GuiUser() { Nick = "dab3", Modes = new List<string>() { "o" } });
 
-            using (var reader = new StreamReader(@"C:\Users\me_000\Desktop\ggxy.txt"))
-            {
-                string line = String.Empty;
+            DesktopViewModel.Context.Servers[0].Channels.Add("#dab.beta", new GuiChnl(DesktopViewModel.Context.Servers[0]) { Name = "#dab.beta" });
+            DesktopViewModel.Context.Servers[0].Channels.Add("#ggxy", new GuiChnl(DesktopViewModel.Context.Servers[0]) { Name = "#ggxy" });
 
-                while((line = reader.ReadLine()) != null)
-                {
-                    DesktopViewModel.Context.Windows[0].WindowBuffer.Inlines.Add((new Run(line + Environment.NewLine)));
-                }
-            }
-            DesktopViewModel.Context.Windows[0].WindowBuffer.Inlines.Add((new Run("Hello World There!!!")));
+            DesktopViewModel.Context.Servers[1].Channels.Add("#dab.beta", new GuiChnl(DesktopViewModel.Context.Servers[1]) { Name = "#dab.beta" });
+            DesktopViewModel.Context.Servers[1].Channels.Add("#dab", new GuiChnl(DesktopViewModel.Context.Servers[1]) { Name = "#dab" });
             
-
-            DesktopViewModel.Context.Servers[0].Channels.Add("#dab.beta", new Channel(DesktopViewModel.Context.Servers[0]) { Name = "#dab.betaName" });
-            DesktopViewModel.Context.Servers[0].Channels.Add("#ggxy", new Channel(DesktopViewModel.Context.Servers[0]) { Name = "#ggxyName" });
-
-            DesktopViewModel.Context.Servers[1].Channels.Add("#dab.beta", new Channel(DesktopViewModel.Context.Servers[1]) { Name = "#dab.beta" });
-            DesktopViewModel.Context.Servers[1].Channels.Add("#dab", new Channel(DesktopViewModel.Context.Servers[1]) { Name = "#dab" });
-
             //treeViewServerList.ItemsSource = this.srvrs;
             //MultiSelect.AllowMultiSelection(treeViewServerList, this.OnSelectedItemsChanged);
+            treeViewServerList.OnSelecting += treeViewServerList_OnSelecting;
+
 
         }
 
-        void OnSelectedItemsChanged(object sender, System.Collections.Generic.List<TreeViewItem> selectedItems)
-        { 
+        void treeViewServerList_OnSelecting(object sender, SelectionChangedCancelEventArgs e)
+        {
+            foreach (var item in e.ItemsToSelect)
+            {
+                IGuiWindow window = item as IGuiWindow;
 
+                if (window != null)
+                {
+                    window.IsActive = true;
+                }
+            }
+
+            foreach (var item in e.ItemsToUnSelect)
+            {
+                IGuiWindow window = item as IGuiWindow;
+
+                if (window != null)
+                {
+                    window.IsActive = false;
+                }
+            }
         }
+
 
         private void TextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
@@ -84,6 +95,7 @@ namespace dabbit.Win
             if (e.Key == Key.Enter)
             {
                 ((GuiChnl)DesktopViewModel.Context.Windows[0]).WindowBuffer.Inlines.Add((new Run(((TextBox)sender).Text + Environment.NewLine)));
+                ((GuiChnl)DesktopViewModel.Context.Windows[0]).WindowBuffer.Inlines.Add((new Run(String.Format(message_user_modes.Text, "thedabnick", "+aoh", "dab debot fred") + Environment.NewLine)));
             }
         }
     }
@@ -181,6 +193,13 @@ namespace dabbit.Win
 
     public class GuiChnl : Channel, System.ComponentModel.INotifyPropertyChanged, IGuiWindow
     {
+        protected GuiChnl()
+        { }
+
+        public GuiChnl(Server svr)
+            : base(svr)
+        { }
+
         public bool IsActive
         {
             get { return this.isActive; }
@@ -216,7 +235,8 @@ namespace dabbit.Win
                 base.Users = value;
                 NotifyPropertyChanged();
             }
-        }
+        }
+
         
         public Paragraph FormattedTopic
         {

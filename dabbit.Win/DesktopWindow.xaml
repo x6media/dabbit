@@ -6,6 +6,12 @@
         xmlns:Controls="clr-namespace:System.Windows.Controls;assembly=TreeViewEx"
         Title="{Binding Display}" Height="340" Width="554">
 
+
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisConverter" />
+        
+    </Window.Resources>
+
     <Grid Margin="5,5,5,5">
         <Grid.ColumnDefinitions>
             <ColumnDefinition></ColumnDefinition>
@@ -32,6 +38,22 @@
                         <TextBlock Text="{Binding Name}" />
                     </StackPanel>
                 </DataTemplate>
+                <Style TargetType="Controls:TreeViewExItem">
+                    <Setter Property="BorderBrushFocusedSelected" Value="White"/>
+                    <Setter Property="BackgroundFocusedSelected" Value="LightBlue"/>
+
+                    <Setter Property="BorderBrushSelected" Value="Blue"/>
+                    <Setter Property="BackgroundSelected" Value="LightBlue"/>
+
+                    <Setter Property="BorderBrushFocused" Value="Black"/>
+                    <Setter Property="BackgroundFocused" Value="Transparent"/>
+
+                    <Setter Property="BorderBrushHovered" Value="Black"/>
+                    <Setter Property="BackgroundHovered" Value="Transparent"/>
+
+                    <Setter Property="BorderBrushInactive" Value="Black"/>
+                    <Setter Property="BackgroundInactive" Value="Transparent"/>
+                </Style>
             </Controls:TreeViewEx.Resources>
 
         </Controls:TreeViewEx>
@@ -49,7 +71,7 @@
         <ItemsControl ItemsSource="{Binding Windows}"  Grid.Row="0" Grid.Column="2" Height="Auto">
             <ItemsControl.ItemTemplate>
                 <DataTemplate DataType="{x:Type me:GuiChnl}">
-                    <me:ChatWindow />
+                    <me:ChatWindow Visibility="{Binding IsActive,Converter={StaticResource BoolToVisConverter}}" />
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
             <ItemsControl.ItemsPanel>
@@ -61,6 +83,7 @@
 
         <!-- Bottom -->
         <TextBox TextChanged="TextBox_TextChanged" KeyDown="TextBox_KeyDown" Grid.Row="1" Grid.Column="0" Background="Transparent" Grid.ColumnSpan="12" />
+
 
     </Grid>
 </Window>
