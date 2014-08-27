@@ -1,32 +1,25 @@
-What is dabbit
+<h1>What is dabbit</h2>
 
 dabbit is my attempt at building a simplified, cross-platform IRC client. My goals are to make the interface simple to use (NO clutter), prevent the need to constantly reconfigure when you jump to another machine or a new machine, allow ease of use with BNCs, and make IRC easy to use and fun to look at.
 
-Roadmap
+<h2>Roadmap</h2>
 
 What needs to be done:
 
-Base library
-    Parse input and make calls to methods
-Each Client UI
-    Windows Desktop App \
-                         | These can share an interface
-    Windows Modern App  /
-    Windows Phone 8 App
-    Linux (GTK + Terminal to replace irssi) 
-    Mac OSX
-    Android App
-    iOS App (Tablet and phone will share similiar interfaces)
-    Web HTML App
-A Socket Server
-    The socket server will keep connections open for clients and forward connections on browsers that don't have native TCP sockets. Think mibbit for desktops
+* Base library
+    ** Parse input and make calls to methods
+* Each Client UI
+    ** Windows 8/Phone 8 Apps
+    ** Android App
+    ** iOS App (Tablet and phone will share similiar interfaces)
+    ** Web HTML App which will be ported to desktops + Chrome
+* A Socket Server
+    ** The socket server will keep connections open for clients and forward connections on browsers that don't have native TCP sockets. Think mibbit for desktops
 
-The HTML interface will need a javascript translation in the future so I can port it as a chrome app and use the native TCP sockets. It's being written in C# right now so I can take advantage of Xamarin/Mono.
+The Configuration file will be downloaded via Skydrive/Google Drive/Local Sync option which a user will login with. This way you as a user will have the freedom to know where your config file is going. This lets dabbit have the same settings no matter where you're at.
 
-The Configuration file will be downloaded via Skydrive/Google Drive/Local Sync option which a user will login with. This way you as a user will have the freedom to know where your config file is going.
+<h2>Scripting Support</h2>
 
-Scripting Support
-
-dabbit will eventually support scripting, however I don't know what language to use for scripting. If you have suggestions for a scripting language parser that preferrably already exists in C#.NET, let me know via admin@dabb.it
+dabbit will support scripting. The language will most likely be a form of Javascript.
 
 Thanks for checking out dabbit!
