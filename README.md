@@ -7,14 +7,14 @@ dabbit is my attempt at building a simplified, cross-platform IRC client. My goa
 What needs to be done:
 
 * Base library
-    ** Parse input and make calls to methods
+  * Parse input and make calls to methods
 * Each Client UI
-    ** Windows 8/Phone 8 Apps
-    ** Android App
-    ** iOS App (Tablet and phone will share similiar interfaces)
-    ** Web HTML App which will be ported to desktops + Chrome
+  * Windows 8/Phone 8 Apps
+  * Android App
+  * iOS App (Tablet and phone will share similiar interfaces)
+  * Web HTML App which will be ported to desktops + Chrome
 * A Socket Server
-    ** The socket server will keep connections open for clients and forward connections on browsers that don't have native TCP sockets. Think mibbit for desktops
+  * The socket server will keep connections open for clients and forward connections on browsers that don't have native TCP sockets. Think mibbit for desktops
 
 The Configuration file will be downloaded via Skydrive/Google Drive/Local Sync option which a user will login with. This way you as a user will have the freedom to know where your config file is going. This lets dabbit have the same settings no matter where you're at.
 
