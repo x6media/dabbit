@@ -1,0 +1,9 @@
+{
+  "name": "dabbitJS",
+  "description": "An IRC socket server and API",
+  "author": "David (dab) <me@davidbarajas.com>",
+  "dependencies": {
+    "restify":"x.x"
+  },
+  "engine": "node 0.4.1"
+}
