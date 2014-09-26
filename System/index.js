@@ -14,7 +14,7 @@ function requireall(basePath)
 		var fullPath = path.join(curdir, file);
 
 		if (fs.statSync(fullPath).isDirectory()) {
-			tmpexport[file] = require(path.join(fullPath, "index.js"));
+			tmpexport[file] = requireall(fullPath);
 		}
 		else if (file.endsWith(".js") && file !== 'index.js' && ! file.startsWith("g_") ) {
 

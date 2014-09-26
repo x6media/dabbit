@@ -2,21 +2,21 @@ var restify = require("restify");
 var http = require('http');
 var fs = require("fs");
 var WebSocketServer = require('websocket').server;
-console.log(__dirname + "/System");
+
 var System = new require("./System")(__dirname + "/System");
 var Console = System.Console;
-Console.WriteLine(); Console.WriteLine();
 
-var dabbit = new require("./System")(__dirname + "/dabbit.Base");
+var dabbit = new require("./System")(__dirname + "/dabbit");
 
 
 var obj = new System.Object();
 var ex = new System.Exception();
+var arex = new System.ArgumentException("ohi there");
 
-var tmp = new dabbit.Channel();
+//var tmp = new dabbit.Base.Channel("");
 
 
-Console.WriteLine("obj type: {0}, ex type: {1}, Console Type: {2}", obj.GetType(), ex.GetType(), "blah");
+Console.WriteLine("obj type: {3}, Obj type: {0}, ex type: {1}, arex Type: {2}", obj.GetType(), ex.GetType(), arex.GetType(), {}.GetType());
 
 
 

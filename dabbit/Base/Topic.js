@@ -1,4 +1,4 @@
-var System = require("../System")(__dirname + "/../System");
+var System = require("../../System")(__dirname + "/../../System");
 
 function Topic() {
         this.Display = String.Empty;

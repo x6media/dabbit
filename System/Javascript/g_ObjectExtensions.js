@@ -6,6 +6,12 @@ if (!Object.prototype.getName) {
 	};
 }
 
+if (!Object.prototype.GetType) {
+	Object.prototype.GetType = function() { 
+	   return this.getName().toLowerCase();
+	};
+}
+
 if (!Object.prototype.IsInherited) {
 	// Useful when determining if an object is inherited
 	Object.prototype.IsInherited = function() { return false; }

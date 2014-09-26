@@ -1,11 +1,11 @@
-﻿var System = require("../System")(__dirname + "/../System");
+﻿var System = require("../../System")(__dirname + "/../../System");
 var Server = {}; //require("./Server");
 var Topic = require("./Topic");
 
 function Channel(svr) {
     // Create an object
     System.Object.call(this, this);
-
+    console.log(svr.GetType());
     if (!svr || svr.GetType() != "Server") {
         throw new System.ArgumentException("Invalid Server Parameter svr");
     }
