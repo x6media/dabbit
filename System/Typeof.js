@@ -1,13 +1,14 @@
 function Typeof(obj)
 {
 	var returntype = typeof obj;
+	console.log(returntype);
 	if (returntype == "function")
 	{
 		returntype = obj.name;
 	}
-	else if (returntype == "object")
+	else if (returntype.toLowerCase() == "object")
 	{
-		console.log(arguments.callee.caller.name);
+		returntype = obj.GetType();
 	}
 
 	return returntype;
