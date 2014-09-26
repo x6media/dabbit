@@ -3,7 +3,9 @@
   "description": "An IRC socket server and API",
   "author": "David (dab) <me@davidbarajas.com>",
   "dependencies": {
-    "restify":"x.x"
+    "restify": "x.x",
+    "selfish": "x.x",
+    "websocket": "x.x"
   },
   "engine": "node 0.4.1"
 }
