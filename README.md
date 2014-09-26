@@ -9,9 +9,8 @@ What needs to be done:
 * Base library
   * Parse input and make calls to methods
 * Each Client UI
-  * Windows 8/Phone 8 Apps
-  * Android App
-  * iOS App (Tablet and phone will share similiar interfaces)
+  * WP8, iOS and Android will share phonegap source code ported from desktop branch
+  * W8 Version ported from phonegap.
   * Web HTML App which will be ported to desktops + Chrome
 * A Socket Server
   * The socket server will keep connections open for clients and forward connections on browsers that don't have native TCP sockets. Think mibbit for desktops
