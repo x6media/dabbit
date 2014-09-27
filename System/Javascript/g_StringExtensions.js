@@ -34,3 +34,14 @@ if (typeof String.prototype.endsWith != 'function') {
     return this.slice(-str.length) == str;
   };
 }
+
+
+// http://anilsoni85.blogspot.com/2009/11/c-like-trim-function-in-javascript.html
+if (!String.prototype.TrimEnd) {
+  String.prototype.trimEnd=function(c) {
+    c = c?c:' ';
+    var i=this.length-1;
+    for(;i>=0 && this.charAt(i)==c;i--);
+    return this.substring(0,i+1);
+  }
+}

@@ -6,7 +6,7 @@ var Typeof = require('../Typeof.js');
 
 function CheckedProperty(def, getMethodOrType, setMethod, optionalType) {
 
-	Object.call(this, this);
+	Object.call(this);
 
     var value = def;
 
@@ -42,7 +42,7 @@ function CheckedProperty(def, getMethodOrType, setMethod, optionalType) {
     		val = result.instead;
     	}
 
-    	if (this.type == "Object" || Typeof(val) == this.type) {
+    	if (this.type == "Object" || !val || Typeof(val) == this.type) {
     		value = val;
     	}
     	else
