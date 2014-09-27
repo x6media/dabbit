@@ -15,6 +15,9 @@ var arex = new System.ArgumentException("ohi there");
 
 //var tmp = new dabbit.Base.Channel("");
 
+console.log(Console.In.prototype);
+
+/*
 Console.WriteLine("Typeof obj: {0}, Typeof Obj: {1}, Typeof ex: {2}, Typeof arex: {3}, Typeof string: {4}, Typeof number: {5}", System.Typeof({}), System.Typeof(obj), System.Typeof(ex), System.Typeof(arex), System.Typeof(""), System.Typeof(5));
 
 Console.WriteLine();
@@ -23,7 +26,7 @@ Console.WriteLine("Typeof Object: {0}, Typeof Sy.Ob: {1}, Typeof Sy.Ex: {2}, Typ
 Console.WriteLine();
 Console.WriteLine();
 Console.WriteLine("obj type: {3}, Obj type: {0}, ex type: {1}, arex Type: {2}, string Type: {4}, number Type: {5}", obj.GetType(), ex.GetType(), arex.GetType(), {}.GetType(), "".GetType(), (5).GetType());
-
+*/
 
 
 /*

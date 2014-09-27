@@ -1,5 +1,6 @@
 
 var Object = require('../Object');
+var ArgumentException = require('../ArgumentException');
 var Inherit = require('./Inherit');
 var Typeof = require('../Typeof.js');
 
@@ -46,7 +47,7 @@ function CheckedProperty(def, getMethodOrType, setMethod, optionalType) {
     	}
     	else
     	{
-    		throw "[System.Javascript.CheckedProperty Exception] Invalid object set";
+    		throw new ArgumentException("Invalid object set");
     	}
     });
 }
