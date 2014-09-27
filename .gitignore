@@ -215,4 +215,6 @@ pip-log.txt
 .mr.developer.cfg
 
 # NPM
-node_modules/
+node_modules/.bin
+node_modules/restify
+node_modules/websocket

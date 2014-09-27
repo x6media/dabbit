@@ -3,10 +3,10 @@ var http = require('http');
 var fs = require("fs");
 var WebSocketServer = require('websocket').server;
 
-var System = new require("./System")(__dirname + "/System");
+var System = new require("all")("System");
 var Console = System.Console;
 
-var dabbit = new require("./System")(__dirname + "/dabbit");
+var dabbit = new require("all")("dabbit");
 
 
 var obj = new System.Object();

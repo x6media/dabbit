@@ -1,7 +1,7 @@
 function Typeof(obj)
 {
 	var returntype = typeof obj;
-	console.log(returntype);
+
 	if (returntype == "function")
 	{
 		returntype = obj.name;
