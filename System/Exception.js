@@ -10,10 +10,9 @@ function Exception(sLevel, sMessage)
 {
 	Object.call(this, this);
 	
-	var str = arguments.callee.caller.name + "";
+	var str = this.constructor.name; // arguments.callee.caller.name + "";
 	var isInheritedBy = this instanceof Exception && !String.IsNullOrEmpty(str);
 
-	console.log();
 	var name = (isInheritedBy ? str : "Exception");
 	var lvl = sLevel || "Low";
 	var msg = sMessage || "A" + (['a', 'e', 'i', 'o', 'u'].indexOf(name[0].toLowerCase()) == -1 ? " " : "n ") + name + " has occured";

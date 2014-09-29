@@ -1,3 +1,5 @@
+"use strict";
+
 var restify = require("restify");
 var http = require('http');
 var fs = require("fs");
@@ -13,8 +15,6 @@ var obj = new System.Object();
 var ex = new System.Exception();
 var arex = new System.ArgumentException("ohi there");
 
-//var tmp = new dabbit.Base.Channel("");
-
 Console.WriteLine("Typeof obj: {0}, Typeof Obj: {1}, Typeof ex: {2}, Typeof arex: {3}, Typeof string: {4}, Typeof number: {5}", System.Typeof({}), System.Typeof(obj), System.Typeof(ex), System.Typeof(arex), System.Typeof(""), System.Typeof(5));
 
 Console.WriteLine();
@@ -25,7 +25,10 @@ Console.WriteLine();
 Console.WriteLine("obj type: {3}, Obj type: {0}, ex type: {1}, arex Type: {2}, string Type: {4}, number Type: {5}", obj.GetType(), ex.GetType(), arex.GetType(), {}.GetType(), "".GetType(), (5).GetType());
 
 
+var privmsgmsg = new dabbit.Base.Events.JoinMessage();
 
+Console.WriteLine("PrivmsgMessage is instance of Message {0}", privmsgmsg instanceof dabbit.Base.Message);
+Console.WriteLine("PrivmsgMessage is instance of System.Object {0}", privmsgmsg instanceof System.Object);
 /*
 var server = restify.createServer();
 server.use(restify.bodyParser());

@@ -8,29 +8,31 @@ function CheckedProperty(def, getMethodOrType, setMethod, optionalType) {
 
 	Object.call(this);
 
-    var value = def;
 
-    if (typeof getMethodOrType == "string")
-    {
+    if (typeof getMethodOrType == "string") {
     	this.type = getMethodOrType;
     	this.setMethod = function() { return true; };
     	this.setMethod = function() { return true; };
     }
-    else
-    {
+    else {
     	this.getMethod = (getMethodOrType || function() { return true; });
     	this.setMethod = (setMethod || function() { return true; });
     	this.type = optionalType || "Object";
 	}
 
+    var value = def;
 
-    this.__defineGetter__("Value", function(){
+    if (this.type != "Object" && val && Typeof(val) != this.type) {
+        throw new ArgumentException("Invalid object set");
+    }
+
+    this.__defineGetter__("Value", function() {
     	var res =  this.getMethod(value);
 
         return (typeof res != "boolean" ? res : value);
     });
 
-    this.__defineSetter__("Value", function(val){
+    this.__defineSetter__("Value", function(val) {
     	var result = this.setMethod(value, val);
 
     	// If our user passed function returned false
@@ -45,8 +47,7 @@ function CheckedProperty(def, getMethodOrType, setMethod, optionalType) {
     	if (this.type == "Object" || !val || Typeof(val) == this.type) {
     		value = val;
     	}
-    	else
-    	{
+    	else {
     		throw new ArgumentException("Invalid object set");
     	}
     });
