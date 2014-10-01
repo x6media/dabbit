@@ -34,8 +34,8 @@ if (!Array.prototype.First) {
 }
 
 if (!Array.prototype.FirstOrDefault) {
-	Array.prototype.FirstOrDefault = function() {
-		return this.length > 0 ? this[0] || {};
+	Array.prototype.FirstOrDefault = function(def) {
+		return this.length > 0 ? this[0] || def || {};
 	}
 }
 if (!Array.prototype.Remove) {
