@@ -33,6 +33,12 @@ if (!Array.prototype.First) {
 	}
 }
 
+if (!Array.prototype.Add) {
+	Array.prototype.Add = function(value) {
+		this.push(value);
+	}
+}
+
 if (!Array.prototype.FirstOrDefault) {
 	Array.prototype.FirstOrDefault = function(def) {
 		return this.length > 0 ? this[0] || def || {};
@@ -44,5 +50,11 @@ if (!Array.prototype.Remove) {
 		if (indx != -1) {
 			this.splice(indx, 1);
 		}
+	}
+}
+
+if (!Array.prototype.Count) {
+	Array.prototype.Count = function() {
+		return this.length;
 	}
 }

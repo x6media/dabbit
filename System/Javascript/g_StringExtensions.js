@@ -22,16 +22,16 @@ if (!String.IsNullOrEmpty) {
 	};
 }
 
-// http://stackoverflow.com/questions/646628/how-to-check-if-a-string-startswith-another-string
+
 if (typeof String.prototype.startsWith != 'function') {
   String.prototype.startsWith = function (str){
-    return this.slice(0, str.length) == str;
+    return this.indexOf(str) == 0;
   };
 }
 
 if (typeof String.prototype.endsWith != 'function') {
   String.prototype.endsWith = function (str){
-    return this.slice(-str.length) == str;
+    return this.indexOf(str) == this.length - str.lenght;
   };
 }
 
