@@ -41,7 +41,7 @@ if (!Array.prototype.Add) {
 
 if (!Array.prototype.FirstOrDefault) {
 	Array.prototype.FirstOrDefault = function(def) {
-		return this.length > 0 ? this[0] || def || {};
+		return this.length > 0 ? this[0] : def || {};
 	}
 }
 if (!Array.prototype.Remove) {

@@ -31,7 +31,7 @@ if (typeof String.prototype.startsWith != 'function') {
 
 if (typeof String.prototype.endsWith != 'function') {
   String.prototype.endsWith = function (str){
-    return this.indexOf(str) == this.length - str.lenght;
+    return this.indexOf(str) == this.length - str.length;
   };
 }
 

@@ -9,7 +9,7 @@ var System = new require("all")("System");
 var Console = System.Console;
 
 var dabbit = new require("all")("dabbit");
-
+console.log(System);
 
 var obj = new System.Object();
 var ex = new System.Exception();
@@ -24,11 +24,6 @@ Console.WriteLine();
 Console.WriteLine();
 Console.WriteLine("obj type: {3}, Obj type: {0}, ex type: {1}, arex Type: {2}, string Type: {4}, number Type: {5}", obj.GetType(), ex.GetType(), arex.GetType(), {}.GetType(), "".GetType(), (5).GetType());
 
-
-var privmsgmsg = new dabbit.Base.Events.JoinMessage();
-
-Console.WriteLine("PrivmsgMessage is instance of Message {0}", privmsgmsg instanceof dabbit.Base.Message);
-Console.WriteLine("PrivmsgMessage is instance of System.Object {0}", privmsgmsg instanceof System.Object);
 /*
 var server = restify.createServer();
 server.use(restify.bodyParser());
