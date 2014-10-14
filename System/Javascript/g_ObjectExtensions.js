@@ -16,3 +16,8 @@ if (!Object.prototype.IsInherited) {
 	// Useful when determining if an object is inherited
 	Object.prototype.IsInherited = function() { return false; }
 }
+if (!Object.prototype.Add) {
+	// Useful when determining if an object is inherited
+	Object.prototype.Add = function(k,v) { this[k] = v; }
+}
+

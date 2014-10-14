@@ -8,10 +8,11 @@ function CheckedProperty(def, getMethodOrType, setMethod, optionalType) {
 
 	Object.call(this);
 
-
+    this.type = function() {};
+    var self = this;
     if (!setMethod) {
     	this.type = getMethodOrType;
-    	this.setMethod = function() { return true; };
+    	this.getMethod = function() { return true; };
     	this.setMethod = function() { return true; };
     }
     else {
@@ -22,8 +23,18 @@ function CheckedProperty(def, getMethodOrType, setMethod, optionalType) {
 
     var value = def;
 
-    if (!determineValidObject(value, true)) {
-        throw new ArgumentException("Invalid object set");
+    var determineValidObject = function(inval, allowUndefined) {
+        if (!allowUndefined && !inval) return -1;
+
+        if (! (inval instanceof self.type)) {
+            return 0;
+        }
+
+        return true;
+    }
+
+    if (determineValidObject(value, true) < 1) {
+        throw new ArgumentException("Invalid object set: " + determineValidObject(value, true));
     }
 
     this.__defineGetter__("Value", function() {
@@ -52,15 +63,6 @@ function CheckedProperty(def, getMethodOrType, setMethod, optionalType) {
     	}
     });
 
-    var determineValidObject(inval, allowUndefined) {
-        if (!allowUndefined && !inval) return false;
-
-        if (! (inval instanceof this.type)) {
-            return false;
-        }
-
-        return true;
-    }
 }
 
 Inherit(Object, CheckedProperty);

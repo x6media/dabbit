@@ -1,13 +1,16 @@
 var System = require("all")("System");
 var Base = require("all")("dabbit/Base");
+var net = require('net');
 
 function NodeSocket(host, port, ssl) {
     // Indicates object inheritance.
-    Base.SocketWrapper.call(this);
+    Base.ISocketWrapper.call(this);
     
     var socket = undefined;
     var backlog = String.Empty;
     var rdCb = undefined;
+    var connectedState = false;
+
     this.__defineGetter__("Host", function() {
         return host || "irc.gamergalaxy.net";
     });
@@ -21,41 +24,50 @@ function NodeSocket(host, port, ssl) {
     });
 
     this.__defineGetter__("Connected", function() {
-        return (socket ? socket.Connected : false);
+        return (connectedState);
     });
 
+var self = this;
     this.ConnectAsync = function(rawData) { 
-        rdCb = rawData;  
+
+        rdCb = rawData || function() { };  
+        console.log(self.Port);
+        socket = net.createConnection( port, host, function() { connectedState = true; console.log("connected"); });
+        socket.setEncoding('utf8');
+        socket.on('data', onData);
+        socket.on('end', function() { connectedState = false; console.log('disconnected'); });
+        socket.on('error', function() { console.log(arguments); } );
     };
 
     this.Disconnect = function() {
         if (this.Connected) {
-
+            socket.end();
         }
     }
 
     // http://stackoverflow.com/a/10012306/486058
     var onData = function(data) {
-        backlog += data
-        var n = backlog.indexOf('\n')
+        backlog += data;
+        var n = backlog.indexOf('\n');
+
         // got a \n? emit one or more 'line' events
         while (~n) {
             //stream.emit('line', backlog.substring(0, n))
             rdCb(backlog.substring(0, n));
-            backlog = backlog.substring(n + 1)
-            n = backlog.indexOf('\n')
+            backlog = backlog.substring(n + 1);
+            n = backlog.indexOf('\n');
         }
 
     }
 
     this.__defineGetter__("Reader", function() {
-        throw new System.MustImplementException("CreateConnection");
+        throw new System.MustImplementException("Reader");
     });
 
     this.__defineGetter__("Writer", function() {
-        throw new System.MustImplementException("CreateConnection");
+        return socket;
     });
 }
-System.Javascript.Inherit(Base.SocketWrapper, NodeSocket);
+System.Javascript.Inherit(Base.ISocketWrapper, NodeSocket);
 
 module.exports = NodeSocket;

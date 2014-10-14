@@ -20,7 +20,7 @@ function Exception(sLevel, sMessage)
 
 	this.toString = function()
 	{
-		return name +": " + msg;
+		return name +": " + msg + "\n" + this.StackTrace;
 	}
 
     this.__defineGetter__("Name", function(){

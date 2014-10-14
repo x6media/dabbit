@@ -6,7 +6,7 @@ var NodeSocket = require('./NodeSocket');
 function NodeContext() {
     // Indicates object inheritance.
     Base.IContext.call(this);
-
+    
     /// <summary>
     /// Create a connection object given ConnectionType and ISocketWrapper
     /// </summary>
@@ -15,8 +15,13 @@ function NodeContext() {
                 
         return connection;
     }
+
+    this.AddServer = function(me, con) {
+        var svr = new Base.Server(this, me, con);
+        this.Server = svr;
+    }
     
-    this.Servers = [];
+    this.Server =  {};
 
     this.Settings = {};
     
@@ -28,7 +33,7 @@ function NodeContext() {
     /// <param name="secure">bool is secure</param>
     /// <returns>A socket wrapper for a connection. This is platform dependant. This will not be in the same namespace</returns>
     this.CreateSocket = function(host, port, secure) {
-        return NodeSocket(host, port, secure);
+        return new NodeSocket(host, port, secure);
     }
 
     /// <summary>

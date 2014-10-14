@@ -17,7 +17,7 @@
       var socket;
 
       status.textContent = "Not Connected";
-      url.value = "ws://localhost:8080";
+      url.value = "ws://localhost:8080/ws/7N2";
       close.disabled = true;
       send.disabled = true;
 
@@ -75,7 +75,7 @@
   <input id="open" type="button" value="Connect" />&nbsp;
   <input id="close" type="button" value="Disconnect" disabled="disabled" /><br />
   <input id="send" type="button" value="Send" />&nbsp;
-  <input id="text" /><br />
+  <input id="text" value='{"command":"connect", "parameters":{"nick":"dabbit", "ident":"dabitp","real":"David"}}' /><br />
   <span id="message"></span>
 </body>
 </html>

@@ -38,10 +38,11 @@ if (typeof String.prototype.endsWith != 'function') {
 
 // http://anilsoni85.blogspot.com/2009/11/c-like-trim-function-in-javascript.html
 if (!String.prototype.TrimEnd) {
-  String.prototype.trimEnd=function(c) {
-    c = c?c:' ';
+
+  String.prototype.TrimEnd=function(c) {
+    c = ' ';
     var i=this.length-1;
-    for(;i>=0 && this.charAt(i)==c;i--);
+    for(;i>=0 && (this.charAt(i)==" " || this.charAt(i)=="\r" || this.charAt(i)=="\n" ) ;i--);
     return this.substring(0,i+1);
   }
 }
