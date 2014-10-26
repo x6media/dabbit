@@ -27,7 +27,7 @@ function NodeSocket(host, port, ssl) {
         return (connectedState);
     });
 
-var self = this;
+    var self = this;
     this.ConnectAsync = function(rawData) { 
 
         rdCb = rawData || function() { };  
@@ -53,7 +53,12 @@ var self = this;
         // got a \n? emit one or more 'line' events
         while (~n) {
             //stream.emit('line', backlog.substring(0, n))
-            rdCb(backlog.substring(0, n));
+            if (backlog[n-1] == '\r') {
+                rdCb(backlog.substring(0, n-1));
+            } else {
+                rdCb(backlog.substring(0, n));
+            }
+
             backlog = backlog.substring(n + 1);
             n = backlog.indexOf('\n');
         }

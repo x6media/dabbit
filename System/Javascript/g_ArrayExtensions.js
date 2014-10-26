@@ -16,12 +16,16 @@ if (!Array.prototype.WhereId) {
 	Array.prototype.WhereId = function(lambda) {
 		var res = [];
 
+		var found = false;
 		for(var i = 0; i < this.length; i++)
 		{
 			if (lambda(this[i])) {
+				found = true;
 				res.push(i);
 			}
 		}
+
+		if (false == found) res.push(-1);
 
 		return res;
 	}
@@ -47,6 +51,7 @@ if (!Array.prototype.FirstOrDefault) {
 if (!Array.prototype.Remove) {
 	Array.prototype.Remove = function(obj) {
 		var indx = this.indexOf(obj);
+		console.log(obj, indx);
 		if (indx != -1) {
 			this.splice(indx, 1);
 		}

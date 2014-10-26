@@ -19,48 +19,7 @@ var ircServer = "irc.dab.biz";
 var ircPort = 6667;
 var ircSsl = false;
 
-var context = new dabbit.Node.NodeContext();
 
-var me = new dabbit.Base.User();
-me.Nick = "dabbit";
-me.Ident = "dabitp";
-me.Name = "David";
-
-
-context.AddServer(me, context.CreateConnection(dabbit.Base.ConnectionType.Direct, context.CreateSocket(ircServer, ircPort, ircSsl)));
-
-context.Server.Events.on("OnRawMessage", function(svr, msg) { console.log(JSON.stringify(msg)); } );
-context.Server.Events.on("OnChannelAction", function(svr, msg) { console.log(JSON.stringify(msg)); } );
-context.Server.Events.on("OnChannelMessage", function(svr, msg) { console.log(JSON.stringify(msg)); } );
-context.Server.Events.on("OnQueryAction", function(svr, msg) { console.log(JSON.stringify(msg)); } );
-context.Server.Events.on("OnQueryMessage", function(svr, msg) { console.log(JSON.stringify(msg)); } );
-context.Server.Events.on("OnChannelActionNotice", function(svr, msg) { console.log(JSON.stringify(msg)); } );
-context.Server.Events.on("OnChannelMessageNotice", function(svr, msg) { console.log(JSON.stringify(msg)); } );
-context.Server.Events.on("OnQueryActionNotice", function(svr, msg) { console.log(JSON.stringify(msg)); } );
-context.Server.Events.on("OnQueryMessageNotice", function(svr, msg) { console.log(JSON.stringify(msg)); } );
-context.Server.Events.on("OnError", function(svr, msg) { console.log(JSON.stringify(msg)); } );
-context.Server.Events.on("OnNewChannelJoin", function(svr, msg) { console.log(JSON.stringify(msg)); } );
-context.Server.Events.on("OnJoin", function(svr, msg) { console.log(JSON.stringify(msg)); } );
-context.Server.Events.on("OnPart", function(svr, msg) { console.log(JSON.stringify(msg)); } );
-context.Server.Events.on("OnCloseChannelPart", function(svr, msg) { console.log(JSON.stringify(msg)); } );
-context.Server.Events.on("OnKick", function(svr, msg) { console.log(JSON.stringify(msg)); } );
-context.Server.Events.on("OnNickChange", function(svr, msg) { console.log(JSON.stringify(msg)); } );
-context.Server.Events.on("OnBan", function(svr, msg) { console.log(JSON.stringify(msg)); } );
-context.Server.Events.on("OnUnban", function(svr, msg) { console.log(JSON.stringify(msg)); } );
-context.Server.Events.on("OnModeChange", function(svr, msg) { console.log(JSON.stringify(msg)); } );
-context.Server.Events.on("OnNewChannelJoin", function(svr, msg) { console.log(JSON.stringify(msg)); } );
-context.Server.Events.on("OnTopic", function(svr, msg) { console.log(JSON.stringify(msg)); } );
-context.Server.Events.on("OnAway", function(svr, msg) { console.log(JSON.stringify(msg)); } );
-context.Server.Events.on("OnUnAway", function(svr, msg) { console.log(JSON.stringify(msg)); } );
-context.Server.Events.on("OnInvite", function(svr, msg) { console.log(JSON.stringify(msg)); } );
-context.Server.Events.on("OnWhoIs", function(svr, msg) { console.log(JSON.stringify(msg)); } );
-context.Server.Events.on("OnConnectionEstablished", function(svr, msg) { console.log(JSON.stringify(msg)); } );
-context.Server.Events.on("OnMotd", function(svr, msg) { console.log(JSON.stringify(msg)); } );
-context.Server.Events.on("OnList", function(svr, msg) { console.log(JSON.stringify(msg)); } );
-context.Server.Events.on("OnUnhandledEvent", function(svr, msg) { console.log(JSON.stringify(msg)); } );
-context.Server.PerformConnect();
-
-/*
 var apiCalls = [ 
 	{"name": "createConnection", "func":createConnection},
 	{"name": "login", "func":login},
@@ -69,7 +28,21 @@ var apiCalls = [
 	{"name": "extendSession", "func":extendSession},
 	{"name": "subscribePushNotification", "func":subscribePushNotification},
 ];
+function censor(censor) {
+  var i = 0;
 
+  return function(key, value) {
+    if(i !== 0 && typeof(censor) === 'object' && typeof(value) == 'object' && censor == value) 
+      return '[Circular]'; 
+
+    //if(i >= 29) // seems to be a harded maximum of 30 serialized objects?
+    //  return '[Unknown]';
+
+    ++i; // so we know we aren't using the original object anymore
+
+    return value;  
+  }
+}
 function createConnection(req, res, next)
 {
 	if (!verifySessionToken(req.params.sessionToken))
@@ -248,37 +221,54 @@ websocket.on('request', function(request) {
             		if (!obj.parameters.nick || !obj.parameters.ident || !obj.parameters.real) {
         				 return connection.sendUTF(JSON.stringify({"code":"error", "message":"Missing nick, ident, or real name", "received":message.utf8Data}));
             		}
-            		var me = new dabbit.Base.User();
-            		me.Nick = obj.parameters.nick;
-            		me.Ident = obj.parameters.ident;
-            		me.Name = obj.parameters.real;
 
-            		context.AddServer(me, context.CreateConnection(dabbit.Base.ConnectionType.Direct, context.CreateSocket(ircServer, ircPort, ircSsl)));
-            		this.Server.Events.on("OnPrivmsg", function(svr, msg) { console.log(msg); } );
-            		this.Server.Events.on("OnNotice", function(svr, msg) { console.log(msg); } );
-            		this.Server.Events.on("OnAction", function(svr, msg) { console.log(msg); } );
-            		this.Server.Events.on("OnMode", function(svr, msg) { console.log(msg); } );
-            		this.Server.Events.on("OnCtcp", function(svr, msg) { console.log(msg); } );
-            		this.Server.Events.on("OnError", function(svr, msg) { console.log(msg); } );
-            		this.Server.Events.on("OnPing", function(svr, msg) { console.log(msg); } );
-            		this.Server.Events.on("OnKick", function(svr, msg) { console.log(msg); } );
-            		this.Server.Events.on("OnJoin", function(svr, msg) { console.log(msg); } );
-            		this.Server.Events.on("OnNames", function(svr, msg) { console.log(msg); } );
-            		this.Server.Events.on("OnList", function(svr, msg) { console.log(msg); } );
-            		this.Server.Events.on("OnPart", function(svr, msg) { console.log(msg); } );
-            		this.Server.Events.on("OnInvite", function(svr, msg) { console.log(msg); } );
-            		this.Server.Events.on("OnBan", function(svr, msg) { console.log(msg); } );
-            		this.Server.Events.on("OnUnban", function(svr, msg) { console.log(msg); } );
-            		this.Server.Events.on("OnTopic", function(svr, msg) { console.log(msg); } );
-            		this.Server.Events.on("OnNick", function(svr, msg) { console.log(msg); } );
-            		this.Server.Events.on("OnQuit", function(svr, msg) { console.log(msg); } );
-            		this.Server.Events.on("OnAway", function(svr, msg) { console.log(msg); } );
-            		this.Server.Events.on("OnWhois", function(svr, msg) { console.log(msg); } );
-            		this.Server.Events.on("OnMotd", function(svr, msg) { console.log(msg); } );
-            		this.Server.Events.on("OnPong", function(svr, msg) { console.log(msg); } );
-            		this.Server.Events.on("OnRaw", function(svr, msg) { console.log(msg); } );
-            		this.Server.Events.on("OnConnect", function(svr, msg) { console.log(msg); } );
-        			this.Server.PerformConnect();
+					var me = new dabbit.Base.User();
+					me.Nick = "dabbit";
+					me.Ident = "dabitp";
+					me.Name = "David";
+
+
+					context.AddServer(me, context.CreateConnection(dabbit.Base.ConnectionType.Direct, context.CreateSocket(ircServer, ircPort, ircSsl)));
+
+					context.Server.Events.on("OnRawMessage", function(svr, msg) { console.log(JSON.stringify(msg)); } );
+					context.Server.Events.on("OnChannelAction", function(svr, msg) { console.log(JSON.stringify(msg)); } );
+					context.Server.Events.on("OnChannelMessage", function(svr, msg) { 
+						console.log(JSON.stringify(msg)); 
+						if (msg.MessageLine == "!listusers") {
+							var users = context.Server.Channels[msg.To.Parts[0].toLowerCase()].Users;
+
+							for(var i = 0; i < users.length; i++) {
+								context.Server.Connection.Write("PRIVMSG " + msg.To.Parts[0] + " :" + users[i].Display);
+							}
+						}
+					});
+					context.Server.Events.on("OnQueryAction", function(svr, msg) { connection.sendUTF(JSON.stringify(msg)); } );
+					context.Server.Events.on("OnQueryMessage", function(svr, msg) { connection.sendUTF(JSON.stringify(msg)); } );
+					context.Server.Events.on("OnChannelActionNotice", function(svr, msg) { connection.sendUTF(JSON.stringify(msg)); } );
+					context.Server.Events.on("OnChannelMessageNotice", function(svr, msg) { connection.sendUTF(JSON.stringify(msg)); } );
+					context.Server.Events.on("OnQueryActionNotice", function(svr, msg) { connection.sendUTF(JSON.stringify(msg)); } );
+					context.Server.Events.on("OnQueryMessageNotice", function(svr, msg) { connection.sendUTF(JSON.stringify(msg)); } );
+					context.Server.Events.on("OnError", function(svr, msg) { connection.sendUTF(JSON.stringify(msg)); } );
+					context.Server.Events.on("OnNewChannelJoin", function(svr, msg) { connection.sendUTF(JSON.stringify(msg)); } );
+					context.Server.Events.on("OnJoin", function(svr, msg) { connection.sendUTF(JSON.stringify(msg)); } );
+					context.Server.Events.on("OnPart", function(svr, msg) { connection.sendUTF(JSON.stringify(msg)); } );
+					context.Server.Events.on("OnCloseChannelPart", function(svr, msg) { connection.sendUTF(JSON.stringify(msg)); } );
+					context.Server.Events.on("OnKick", function(svr, msg) { connection.sendUTF(JSON.stringify(msg)); } );
+					context.Server.Events.on("OnNickChange", function(svr, msg) { connection.sendUTF(JSON.stringify(msg)); } );
+					context.Server.Events.on("OnBan", function(svr, msg) {connection.sendUTF(JSON.stringify(msg)); } );
+					context.Server.Events.on("OnUnban", function(svr, msg) { connection.sendUTF(JSON.stringify(msg)); } );
+					context.Server.Events.on("OnModeChange", function(svr, msg) { connection.sendUTF(JSON.stringify(msg)); } );
+					context.Server.Events.on("OnNewChannelJoin", function(svr, msg) { connection.sendUTF(JSON.stringify(msg)); } );
+					context.Server.Events.on("OnTopic", function(svr, msg) { connection.sendUTF(JSON.stringify(msg)); } );
+					context.Server.Events.on("OnAway", function(svr, msg) { connection.sendUTF(JSON.stringify(msg)); } );
+					context.Server.Events.on("OnUnAway", function(svr, msg) { connection.sendUTF(JSON.stringify(msg)); } );
+					context.Server.Events.on("OnInvite", function(svr, msg) { connection.sendUTF(JSON.stringify(msg)); } );
+					context.Server.Events.on("OnWhoIs", function(svr, msg) { connection.sendUTF(JSON.stringify(msg)); } );
+					context.Server.Events.on("OnConnectionEstablished", function(svr, msg) { connection.sendUTF(JSON.stringify(msg)); } );
+					context.Server.Events.on("OnMotd", function(svr, msg) { connection.sendUTF(JSON.stringify(msg)); } );
+					context.Server.Events.on("OnList", function(svr, msg) { connection.sendUTF(JSON.stringify(msg)); } );
+					context.Server.Events.on("OnUnhandledEvent", function(svr, msg) { connection.sendUTF(JSON.stringify(msg)); } );
+					context.Server.PerformConnect();
 
             	break;
             	case "msg":
@@ -298,7 +288,10 @@ websocket.on('request', function(request) {
 
             	break;
             	case "quit":
-
+            		
+            	break;
+            	case "sync":
+            		connection.sendUTF(JSON.stringify(context.Server, censor(context.Server)));
             	break;
             }
             //connection.sendUTF(message.utf8Data);

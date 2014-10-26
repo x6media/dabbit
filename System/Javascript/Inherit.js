@@ -14,8 +14,7 @@ function Inherit(base, sub) {
   }
   // Remember the constructor property was set wrong, let's fix it
   sub.prototype.constructor = sub;
-  sub.prototype.IsInherited = function() { return true; }
-  sub.prototype.Base = base;
+  
   // In ECMAScript5+ (all modern browsers), you can make the constructor property
   // non-enumerable if you define it like this instead
   Object.defineProperty(sub.prototype, 'constructor', { 
