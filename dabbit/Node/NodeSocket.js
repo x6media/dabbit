@@ -31,7 +31,6 @@ function NodeSocket(host, port, ssl) {
     this.ConnectAsync = function(rawData) { 
 
         rdCb = rawData || function() { };  
-        console.log(self.Port);
         socket = net.createConnection( port, host, function() { connectedState = true; console.log("connected"); });
         socket.setEncoding('utf8');
         socket.on('data', onData);

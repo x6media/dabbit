@@ -27,7 +27,7 @@
         socket = new WebSocket(url.value, "echo-protocol");
 
         socket.addEventListener("open", function(event) {
-          close.disabled = true;
+          close.disabled = false;
           send.disabled = false;
           status.textContent = "Connected";
           message.textContent = "";
@@ -35,7 +35,7 @@
 
         // Display messages received from the server
         socket.addEventListener("message", function(event) {
-          message.textContent = "Server Says: " + event.data;
+          message.innerHTML += "Server Says: " + event.data + "<br />\n<br />\n";
         });
 
         // Display any errors that occur
@@ -64,7 +64,7 @@
       // Send text to the server when the Send button is clicked
       send.addEventListener("click", function(event) {
         socket.send(text.value);
-        text.value = "";
+        //text.value = "";
       });
     });
   </script>

@@ -6,17 +6,13 @@ var Assert = require('assert');
 
 var writtenLines = [];
 
-//console.log("DeBot".localeCompare("dab-"));
-console.log("DeBot".CompareTo("dab-"));
-
-
 function nothingWriter ()
 {
     this.write = function (data) 
     { 
         if (!String.IsNullOrEmpty(data))
         {
-            Console.WriteLine(data); 
+            //Console.WriteLine(data); 
             writtenLines.push(data); 
         }
 
@@ -54,6 +50,24 @@ function StringTestSocket(read, write) {
         ":hyperion.gamergalaxy.net 005 lkjfsdlkf CMDS=KNOCK,MAP,DCCALLOW,USERIP UHNAMES NAMESX SAFELIST HCN MAXCHANNELS=60 CHANLIMIT=#:60 MAXLIST=b:60,e:60,I:60 NICKLEN=30 CHANNELLEN=32 TOPICLEN=307 KICKLEN=307 AWAYLEN=307 :are supported by this server" + "\r\n" +
         ":hyperion.gamergalaxy.net 005 lkjfsdlkf MAXTARGETS=20 WALLCHOPS WATCH=128 WATCHOPTS=A SILENCE=15 MODES=12 CHANTYPES=# PREFIX=(qaohv)~&@%+ CHANMODES=beI,kfL,lj,psmntirRcOAQKVCuzNSMTG NETWORK=Gamer-Galaxy-IRC CASEMAPPING=ascii EXTBAN=~,cqnrT ELIST=MNUCT :are supported by this server" + "\r\n" +
         ":hyperion.gamergalaxy.net 005 lkjfsdlkf STATUSMSG=~&@%+ EXCEPTS INVEX :are supported by this server" + "\r\n" +
+        ":hyperion.gamergalaxy.net 422 lkjfsdlkf :No MOTD" + "\r\n" +
+        ":hyperion.gamergalaxy.net 311 lkjfsdlkf lkjfsdlkf dabitp lkjfsdlkf.host.test.dabb.it * :David" + "\r\n" +
+        ":hyperion.gamergalaxy.net 378 lkjfsdlkf lkjfsdlkf :is connecting from *@76.178.154.95 76.178.154.95" + "\r\n" +
+        ":hyperion.gamergalaxy.net 312 lkjfsdlkf lkjfsdlkf hyperion.gamergalaxy.net :Gamer Galaxy" + "\r\n" +
+        ":hyperion.gamergalaxy.net 317 lkjfsdlkf lkjfsdlkf 6 1414360243 :seconds idle, signon time" + "\r\n" +
+        ":hyperion.gamergalaxy.net 318 lkjfsdlkf lkjfsdlkf :End of /WHOIS list." + "\r\n" +
+
+        ":hyperion.gamergalaxy.net 311 lkjfsdlkf dab dabitp dab.biz * :David" + "\r\n" +
+        ":hyperion.gamergalaxy.net 307 lkjfsdlkf dab :is identified for this nick" + "\r\n" +
+        ":hyperion.gamergalaxy.net 319 lkjfsdlkf dab :+#idlerpg &#gamergalaxy #news &#code ~#dab @#marblecake &#help #yuwanttoknow #u16 +#patel @#lightcraft #ebil" + "\r\n" +
+        ":hyperion.gamergalaxy.net 312 lkjfsdlkf dab hyperion.gamergalaxy.net :Gamer Galaxy" + "\r\n" +
+        ":hyperion.gamergalaxy.net 313 lkjfsdlkf dab :is a Network Administrator" + "\r\n" +
+        ":hyperion.gamergalaxy.net 310 lkjfsdlkf dab :is available for help." + "\r\n" +
+        ":hyperion.gamergalaxy.net 671 lkjfsdlkf dab :is using a Secure Connection" + "\r\n" +
+        ":hyperion.gamergalaxy.net 330 lkjfsdlkf dab dab :is logged in as" + "\r\n" +
+        ":hyperion.gamergalaxy.net 317 lkjfsdlkf dab 4420 1409723247 :seconds idle, signon time" + "\r\n" +
+        ":hyperion.gamergalaxy.net 318 lkjfsdlkf dab :End of /WHOIS list." + "\r\n" +
+
         ":dab!dabitp@dab.biz PRIVMSG #DAB :Hello World" + "\r\n" +
         ":dab!dabitp@dab.biz PRIVMSG +#DAB :Hello World" + "\r\n" +
         ":dab!dabitp@dab.biz PRIVMSG dab :Hello World" + "\r\n" +
@@ -93,7 +107,6 @@ function StringTestSocket(read, write) {
 
     this.ConnectAsync = function(rawData) {
         rdCb = rawData || function() { };
-        console.log("TICK!");
         connectedState = true;
         setTimeout(function() { onData(input) }, 1000);
     };
@@ -222,6 +235,8 @@ var onNewChannel = false;
 var onQuitTest = false;
 var onNumeric333 = false;
 
+var onWhoisMe = true;
+var onWhoisThem = false;
 
 var ctx = new TestContext();
 
@@ -267,10 +282,13 @@ ctx.Server.Events.on('OnRawMessage', function(svr, e) {
         Assert(onNewChannel, "OnNewChannelJoin was not called back");
         Assert(onNumeric333, "Numeric 333 was not called! :(");
 
+        Assert(onWhoisThem, "Whois was not called for Them");
+        Assert(onWhoisMe, "Whois was called for Me when it shouldn't have been");
+
         Assert(onQuitTest, "Quit test did not pass. Did not quit with proper channels");
 
         var tmp = ctx.Server.Channels["#dab"];
-        console.log(tmp.Users);
+
         var order = 0;
         Assert.equal(tmp.Users[order++].Nick, "dab", "dab Nicks in wrong order");
         Assert.equal("DoBot", tmp.Users[order++].Nick, "DoBot Nicks in wrong order");
@@ -296,7 +314,7 @@ ctx.Server.Events.on('OnRawMessage', function(svr, e) {
         Assert.ifError(tmp.Users.Where(function(p) { return p.Nick == "kickme"}).First(), "kickme should have been removed from the user list");
         Assert.ifError(tmp.Users.Where(function(p) { return p.Nick == "johnnick1"}).First(), "johnnick1 should have been removed and changed to kickme on nick");
         Assert(tmp.Users.Where(function(p) { return p.Nick == "zzzbad"}).First(), "Nickname change for zzzbad was not updated");
-        console.log(JSON.stringify(ctx.Server, censor(ctx.Server)));
+
         console.log("Unit tests pass");
     }
 });
@@ -313,6 +331,22 @@ ctx.Server.Events.on('OnChannelMessage', function(svr, e) {
     {
         onChannelMessage = true;
     }
+});
+
+ctx.Server.Events.on('OnWhoIs', function(svr, e) {
+    if (e.Who.Nick == svr.Me.Nick) {
+        onWhoisMe = false;
+    }
+
+    Assert.equal(e.Who.Nick, "dab", "Nick not dab");
+    Assert.equal(e.Who.Host, "dab.biz", "Host not dab.biz");
+    Assert.equal(e.Who.Name, "David", "Real name not David");
+    Assert.equal(e.Who.IrcOp, true, "Not IRCOp When should be");
+    Assert.equal(e.Who.IdentifiedAs, 'dab', "Should be Ident as dab");
+    Assert.equal(e.Who.Channels.length, 12, "Channels should be 12, actually " + e.Who.Channels.length);
+    Assert(e.Who.Channels[0][0] != ':', "Didn't strip out colon in first channel");
+    Assert.equal(new Date("Tue Sep 02 22:47:27 2014").getTime(), e.Who.SignedOn.getTime(), "Signed on dates are not the same");
+    onWhoisThem = true;
 });
 
 ctx.Server.Events.on('OnChannelMessageNotice', function(svr, e) {

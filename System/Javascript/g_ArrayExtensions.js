@@ -51,7 +51,6 @@ if (!Array.prototype.FirstOrDefault) {
 if (!Array.prototype.Remove) {
 	Array.prototype.Remove = function(obj) {
 		var indx = this.indexOf(obj);
-		console.log(obj, indx);
 		if (indx != -1) {
 			this.splice(indx, 1);
 		}
