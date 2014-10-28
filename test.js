@@ -68,6 +68,9 @@ function StringTestSocket(read, write) {
         ":hyperion.gamergalaxy.net 317 lkjfsdlkf dab 4420 1409723247 :seconds idle, signon time" + "\r\n" +
         ":hyperion.gamergalaxy.net 318 lkjfsdlkf dab :End of /WHOIS list." + "\r\n" +
 
+        ":navi.gamergalaxy.net 401 lkjfsdlkf flkjdslkk :No such nick/channel" + "\r\n" +
+        ":navi.gamergalaxy.net 318 lkjfsdlkf flkjdslkk :End of /WHOIS list." + "\r\n" +
+
         ":dab!dabitp@dab.biz PRIVMSG #DAB :Hello World" + "\r\n" +
         ":dab!dabitp@dab.biz PRIVMSG +#DAB :Hello World" + "\r\n" +
         ":dab!dabitp@dab.biz PRIVMSG dab :Hello World" + "\r\n" +
@@ -336,17 +339,27 @@ ctx.Server.Events.on('OnChannelMessage', function(svr, e) {
 ctx.Server.Events.on('OnWhoIs', function(svr, e) {
     if (e.Who.Nick == svr.Me.Nick) {
         onWhoisMe = false;
+        return;
     }
 
-    Assert.equal(e.Who.Nick, "dab", "Nick not dab");
-    Assert.equal(e.Who.Host, "dab.biz", "Host not dab.biz");
-    Assert.equal(e.Who.Name, "David", "Real name not David");
-    Assert.equal(e.Who.IrcOp, true, "Not IRCOp When should be");
-    Assert.equal(e.Who.IdentifiedAs, 'dab', "Should be Ident as dab");
-    Assert.equal(e.Who.Channels.length, 12, "Channels should be 12, actually " + e.Who.Channels.length);
-    Assert(e.Who.Channels[0][0] != ':', "Didn't strip out colon in first channel");
-    Assert.equal(new Date("Tue Sep 02 22:47:27 2014").getTime(), e.Who.SignedOn.getTime(), "Signed on dates are not the same");
-    onWhoisThem = true;
+    if (e.Who.Nick == "flkjdslkk")
+    {
+        
+    }
+
+    console.log(e.Who);
+
+    if (! onWhoisThem) {
+        Assert.equal(e.Who.Nick, "dab", "Nick not dab");
+        Assert.equal(e.Who.Host, "dab.biz", "Host not dab.biz");
+        Assert.equal(e.Who.Name, "David", "Real name not David");
+        Assert.equal(e.Who.IrcOp, true, "Not IRCOp When should be");
+        Assert.equal(e.Who.IdentifiedAs, 'dab', "Should be Ident as dab");
+        Assert.equal(e.Who.Channels.length, 12, "Channels should be 12, actually " + e.Who.Channels.length);
+        Assert(e.Who.Channels[0][0] != ':', "Didn't strip out colon in first channel");
+        Assert.equal(new Date("Tue Sep 02 22:47:27 2014").getTime(), e.Who.SignedOn.getTime(), "Signed on dates are not the same");
+        onWhoisThem = true;
+    }
 });
 
 ctx.Server.Events.on('OnChannelMessageNotice', function(svr, e) {
