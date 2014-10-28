@@ -6,7 +6,7 @@ var jshintStylish = require('jshint-stylish');
 
 var JAVASCRIPTS = ['System/**/*.js', 'dabbit/**/*.js'];
 
-var TESTS = ['test/**/*.spec.js'];
+var TESTS = ['test/**/*.spec.js', 'test/**/*.spec.coffee'];
 
 function jshintFiles(files) {
   return files

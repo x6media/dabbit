@@ -1,3 +1,5 @@
+![Travis-CI](https://travis-ci.org/x6media/dabbit.svg)
+
 <h1>What is dabbit</h2>
 
 dabbit is my attempt at building a simplified, cross-platform IRC client. My goals are to make the interface simple to use (NO clutter), prevent the need to constantly reconfigure when you jump to another machine or a new machine, allow ease of use with BNCs, and make IRC easy to use and fun to look at.
