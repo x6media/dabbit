@@ -1,0 +1,8 @@
+{
+  "strict": true,
+  "eqeqeq": true,
+  "freeze": true,
+  "undef": true,
+  "unused": true,
+  "global": {}
+}

@@ -6,5 +6,12 @@
     "restify": "x.x",
     "websocket": "x.x"
   },
-  "engine": "node 0.4.1"
+  "engine": "node 0.4.1",
+  "devDependencies": {
+    "gulp": "^3.8.9",
+    "gulp-jasmine": "^1.0.1",
+    "gulp-jshint": "^1.8.6",
+    "gulp-watch": "^1.1.0",
+    "jshint-stylish": "^1.0.0"
+  }
 }
